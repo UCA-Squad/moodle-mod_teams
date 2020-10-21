@@ -39,8 +39,8 @@ require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Mo
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/IdentitySet.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/MeetingParticipantInfo.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/MeetingParticipants.php');
-require_once($CFG->dirroot.'/mod/teams/classes/Office365.php');
-require_once($CFG->dirroot.'/calendar/lib.php');
+require_once($CFG->dirroot . '/mod/teams/classes/Office365.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
 
 /**
  * List of features supported in Folder module
@@ -80,7 +80,7 @@ function teams_add_instance($data, $mform) {
         $data->displayoptions = serialize($displayoptions);
 
         $given_name = $data->name;
-        $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string('teams:' . $data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
+        $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string($data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
         $data->intro = $data->intro;
         $data->introformat = "1";
         $data->timemodified = time();
@@ -121,10 +121,10 @@ function teams_add_instance($data, $mform) {
             $modelteam_id = get_config('mod_teams', 'team_model');
             if ($modelteam_id) {
                 // We create the team by forking the model team.
-                $team = $office->copyTeam($modelteam_id, $given_name, sprintf(get_string('teams:description', 'mod_teams'), $COURSE->fullname), $users);
+                $team = $office->copyTeam($modelteam_id, $given_name, sprintf(get_string('description', 'mod_teams'), $COURSE->fullname), $users);
             } else {
                 // We create a "default" team.
-                $data->team_id = $office->createGroup($given_name, sprintf(get_string('teams:description', 'mod_teams'), $COURSE->fullname), $users);
+                $data->team_id = $office->createGroup($given_name, sprintf(get_string('description', 'mod_teams'), $COURSE->fullname), $users);
                 $team = $office->createTeam($data->team_id);
             }
 
@@ -200,7 +200,7 @@ function teams_update_instance($data, $mform) {
         $data->displayoptions = serialize($displayoptions);
 
         $given_name = $data->name;
-        $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string('teams:' . $data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
+        $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string($data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
         $data->intro = $data->intro;
         $data->introformat = "1";
         $data->timemodified = time();
@@ -468,12 +468,12 @@ function teams_set_events($team) {
         // Separate start and end events.
         $event->timeduration  = 0;
         if ($team->opendate) {
-            $event->name = $team->name . get_string('teams:opendate_session', 'mod_teams');
+            $event->name = $team->name . get_string('opendate_session', 'mod_teams');
             calendar_event::create($event);
             unset($event->id); // So we can use the same object for the close event.
         }
         if ($team->closedate) {
-            $event->name = $team->name . get_string('teams:closedate_session', 'mod_teams');
+            $event->name = $team->name . get_string('closedate_session', 'mod_teams');
             $event->timestart = $team->closedate;
             $event->eventtype = 'close';
             calendar_event::create($event);
@@ -553,10 +553,10 @@ function teams_print_details_dates($team, $format = 'html')
     global $OUTPUT;
     if ($team->type == 'meeting') {
         if ($team->opendate != 0) {
-            $details = ($team->closedate != 0) ? sprintf(get_string('teams:dates_between', 'mod_teams'), date('d/m/Y H:i', $team->opendate), date('d/m/Y H:i', $team->closedate))  : sprintf(get_string('teams:dates_from', 'mod_teams'), date('d/m/Y H:i', $team->opendate));
+            $details = ($team->closedate != 0) ? sprintf(get_string('dates_between', 'mod_teams'), date('d/m/Y H:i', $team->opendate), date('d/m/Y H:i', $team->closedate))  : sprintf(get_string('dates_from', 'mod_teams'), date('d/m/Y H:i', $team->opendate));
         }
         else if ($team->closedate != 0) {
-            $details = sprintf(get_string('teams:dates_until', 'mod_teams'), date('d/m/Y H:i', $team->closedate));
+            $details = sprintf(get_string('dates_until', 'mod_teams'), date('d/m/Y H:i', $team->closedate));
         }
         if ($details) {
             $msg = sprintf(get_string('meetingavailable', 'mod_teams'), $details);

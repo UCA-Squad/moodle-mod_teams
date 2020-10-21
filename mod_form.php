@@ -80,8 +80,8 @@ class mod_teams_mod_form extends moodleform_mod
                     }
                 }
                 // Default name, if prefix is used we do not display it here.
-                if (strpos($this->current->name, get_string('teams:' . $default_type . '_prefix', 'mod_teams')) == 0) {
-                    $this->current->name = str_replace(get_string('teams:' . $default_type . '_prefix', 'mod_teams'), '', $this->current->name);
+                if (strpos($this->current->name, get_string($default_type . '_prefix', 'mod_teams')) == 0) {
+                    $this->current->name = str_replace(get_string($default_type . '_prefix', 'mod_teams'), '', $this->current->name);
                 }
             }
 
@@ -91,20 +91,20 @@ class mod_teams_mod_form extends moodleform_mod
 
                     $radioarray = array();
                     $radioarray[] = $mform->createElement('radio', 'type', '',
-                        "<div>" . get_string('teams:team', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('teams:team', 'mod_teams'), 'src' => $OUTPUT->image_url('i/cohort', 'core'), 'style' => 'height: 96px;margin-right: 50px;')) . "</div>",
+                        "<div>" . get_string('team', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('team', 'mod_teams'), 'src' => $OUTPUT->image_url('i/cohort', 'core'), 'style' => 'height: 96px;margin-right: 50px;')) . "</div>",
                         'team');
                     $radioarray[] = $mform->createElement('radio', 'type', '',
-                        "<div>" . get_string('teams:meeting', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('teams:meeting', 'mod_teams'), 'src' => $OUTPUT->image_url('i/calendar', 'core'), 'style' => 'height: 96px;')) . "</div>",
+                        "<div>" . get_string('meeting', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('meeting', 'mod_teams'), 'src' => $OUTPUT->image_url('i/calendar', 'core'), 'style' => 'height: 96px;')) . "</div>",
                         'meeting');
-                    $mform->addGroup($radioarray, 'type', get_string('teams:type', 'mod_teams'), array(' '), false);
-                    $mform->addHelpButton('type', 'teams:type', 'mod_teams');
+                    $mform->addGroup($radioarray, 'type', get_string('type', 'mod_teams'), array(' '), false);
+                    $mform->addHelpButton('type', 'type', 'mod_teams');
                     $mform->setDefault('type', $default_type);
                     $mform->disabledIf('type', 'resource_teams_id', 'neq', ''); // Disable if we edit the resource
 
-                    $mform->addElement('text', 'name', get_string('teams:name', 'mod_teams'), 'size=80');
+                    $mform->addElement('text', 'name', get_string('name', 'mod_teams'), 'size=80');
                     $mform->addRule('name', null, 'required', null, 'client');
                     $mform->setType('name', PARAM_TEXT);
-                    $mform->addHelpButton('name', 'teams:name', 'mod_teams');
+                    $mform->addHelpButton('name', 'name', 'mod_teams');
 
                     $mform->addElement('hidden', 'resource_teams_id');
                     $mform->setType('resource_teams_id', PARAM_TEXT);
@@ -120,14 +120,14 @@ class mod_teams_mod_form extends moodleform_mod
 
                     /* -- Team creation -- */
                     $groupteamitems = array();
-                    $groupteamitems[] =& $mform->createElement('html', get_string('teams:desc', 'mod_teams'));
+                    $groupteamitems[] =& $mform->createElement('html', get_string('desc', 'mod_teams'));
                     $groupteam = $mform->createElement('group', 'group_team', false, $groupteamitems, null, false);
                     $mform->addElement($groupteam);
 
                     $populationslist = [
-                        'course' => get_string('teams:population_all', 'mod_teams'),
-                        'groups' => get_string('teams:population_groups', 'mod_teams'),
-                        'users' => get_string('teams:population_users', 'mod_teams'),
+                        'course' => get_string('population_all', 'mod_teams'),
+                        'groups' => get_string('population_groups', 'mod_teams'),
+                        'users' => get_string('population_users', 'mod_teams'),
                     ];
 
                     $coursecontext = context_course::instance($COURSE->id);
@@ -144,8 +144,8 @@ class mod_teams_mod_form extends moodleform_mod
                         $enrolled[$user->email] = fullname($user);
                     }
 
-                    $mform->addElement('select', 'population', get_string('teams:population', 'mod_teams'), $populationslist);
-                    $mform->addHelpButton('population', 'teams:population', 'mod_teams');
+                    $mform->addElement('select', 'population', get_string('population', 'mod_teams'), $populationslist);
+                    $mform->addHelpButton('population', 'population', 'mod_teams');
 
                     $mform->addElement('searchableselector', 'groups', get_string('group'), $groups, array('multiple'));
                     $mform->hideIf('groups', 'population', 'eq', 'course');
@@ -155,10 +155,10 @@ class mod_teams_mod_form extends moodleform_mod
                     $mform->hideIf('users', 'population', 'eq', 'course');
                     $mform->hideIf('users', 'population', 'eq', 'groups');
 
-                    $mform->addElement('advcheckbox', 'enrol_managers', get_string('teams:enrol_managers', 'mod_teams'));
+                    $mform->addElement('advcheckbox', 'enrol_managers', get_string('enrol_managers', 'mod_teams'));
                     $mform->setDefault('enrol_managers', false);
                     $mform->hideIf('enrol_managers', 'population', 'eq', 'course');
-                    $mform->addHelpButton('enrol_managers', 'teams:enrol_managers', 'mod_teams');
+                    $mform->addHelpButton('enrol_managers', 'enrol_managers', 'mod_teams');
 
                     $mform->hideIf('group_team', 'type', 'eq', 'meeting');
                     $mform->hideIf('population', 'type', 'eq', 'meeting');
@@ -170,22 +170,22 @@ class mod_teams_mod_form extends moodleform_mod
                     $enableopengroup = array();
                     $enableopengroup[] =& $mform->createElement('date_time_selector', 'opendate', '');
                     $enableopengroup[] =& $mform->createElement('checkbox', 'useopendate', get_string('enable', 'moodle'));
-                    $mform->addGroup($enableopengroup, 'enableopengroup', get_string('teams:opendate', 'mod_teams'), ' ', false);
-                    $mform->addHelpButton('enableopengroup', 'teams:opendate', 'mod_teams');
+                    $mform->addGroup($enableopengroup, 'enableopengroup', get_string('opendate', 'mod_teams'), ' ', false);
+                    $mform->addHelpButton('enableopengroup', 'opendate', 'mod_teams');
                     $mform->disabledIf('enableopengroup', 'useopendate', 'notchecked');
 
                     $enableclosegroup = array();
                     $enableclosegroup[] =& $mform->createElement('date_time_selector', 'closedate', '');
                     $enableclosegroup[] =& $mform->createElement('checkbox', 'useclosedate', get_string('enable', 'moodle'));
-                    $enableclosegroup[] =& $mform->addGroup($enableclosegroup, 'enableclosegroup', get_string('teams:closedate', 'mod_teams'), ' ', false);
-                    $mform->addHelpButton('enableclosegroup', 'teams:closedate', 'mod_teams');
+                    $enableclosegroup[] =& $mform->addGroup($enableclosegroup, 'enableclosegroup', get_string('closedate', 'mod_teams'), ' ', false);
+                    $mform->addHelpButton('enableclosegroup', 'closedate', 'mod_teams');
                     $mform->disabledIf('enableclosegroup', 'useclosedate', 'notchecked');
 
                     $mform->hideIf('enableopengroup', 'type', 'eq', 'team');
                     $mform->hideIf('enableclosegroup', 'type', 'eq', 'team');
 
                     $dateitems = array();
-                    $dateitems[] =& $mform->createElement('html', get_string('teams:dates_help', 'mod_teams'));
+                    $dateitems[] =& $mform->createElement('html', get_string('dates_help', 'mod_teams'));
                     $dategroup = $mform->createElement('group', 'group_date', false, $dateitems, null, false);
                     $mform->addElement($dategroup);
                     $mform->hideIf('group_date', 'type', 'eq', 'team');
@@ -201,16 +201,16 @@ class mod_teams_mod_form extends moodleform_mod
             } else {
                 // The current user does not have the rights to edit the resource info.
                 $this->standard_hidden_coursemodule_elements();
-                $mform->addElement('html', '<div class="alert alert-danger">' . get_string('teams:no_owner', 'teams', $error) . '</div>');
-                $mform->addElement('cancel', '', get_string('teams:back', 'teams'));
+                $mform->addElement('html', '<div class="alert alert-danger">' . get_string('no_owner', 'teams', $error) . '</div>');
+                $mform->addElement('cancel', '', get_string('back', 'teams'));
             }
         }
         else {
             // The current user does not have an Azure AD account -> impossible to add a teams instance.
             $this->standard_hidden_coursemodule_elements();
-            $identifer = ($error) ? 'teams:error' : 'teams:noaccount';
+            $identifer = ($error) ? 'teamserror' : 'noaccount';
             $mform->addElement('html', '<div class="alert alert-danger">' . get_string($identifer, 'teams', $error) . '</div>');
-            $mform->addElement('cancel', '', get_string('teams:back', 'teams'));
+            $mform->addElement('cancel', '', get_string('back', 'teams'));
         }
     }
 
@@ -227,17 +227,17 @@ class mod_teams_mod_form extends moodleform_mod
         if ($data['type'] == "team") { // Teams creation.
             // Checks if at least one group is selected.
             if (isset($data['population']) && $data['population'] == "groups" && count($data['groups']) < 1) {
-                $errors['groups'] = get_string('teams:error_groups', 'mod_teams');
+                $errors['groups'] = get_string('error_groups', 'mod_teams');
             }
 
             // Checks if at least one user is selected.
             if (isset($data['population']) && $data['population'] == "users" && count($data['users']) < 1) {
-                $errors['users'] = get_string('teams:error_users', 'mod_teams');
+                $errors['users'] = get_string('error_users', 'mod_teams');
             }
         } else { // Online meeting creation.
             // Checks dates choice consistency.
             if (isset($data['useopendate']) && isset($data['useclosedate']) && $data['closedate'] < $data['opendate']) {
-                $errors['enableclosegroup'] = get_string('teams:error_dates', 'mod_teams');
+                $errors['enableclosegroup'] = get_string('error_dates', 'mod_teams');
             }
         }
 
