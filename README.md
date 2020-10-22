@@ -1,10 +1,10 @@
 Mod Teams
 ==================================
-This moodle mod creates and displays a Teams resource (team or online meeting) from a Moodle course.
+This moodle mod creates and displays a Teams resource (team or online meeting/virtual classroom) from a Moodle course.
 
 Goals
 ------------
-Goals of this mod were to create a Teams resource from a Moodle course, to access to it and to enrol course members as this teams resource members.
+Goals of this plugin were to create a Teams resource from a Moodle course, to access to it and to enrol course members as this teams resource members.
 
 Requirements
 ------------
@@ -98,14 +98,15 @@ Json examples:
 
 [TEAM] Members synchronization
 -----
-
+For this members synchonization we made the choice to use a powershell script to do it. Using API here does not seemed relevant or efficient enough with the potential volume of datas to be processed.<br/>
+This script will use the given json file by moodle which lists all expected members for each team.
 
 Possible improvements
 -----
 - Add directly members to the team. Avoid a first script execution to have a "full" team. 
 - Use the availability period defined in the form directly in Teams (for now this feature does not seem functional with the API) and display it in Teams calendar.
-- Add more options (if possible with the API). Ex: Waiting room, Who can present...
-- Online meeting: control in the visualization and edition page if this meeting exists in Teams.
+- Add more options (if possible with the API). Ex: Waiting lobby, Who can present...
+- Control in the moodle visualization and edition pages if an online meeting exists in Teams.
 - Add admin setting to select resource types it will be possible to add with the plugin. 
 - Use the prefix when we edit inline the resource name. 
 <p>Feel free to propose some improvements and/or developments/pull requests to improve this plugin.</p>  

@@ -1,10 +1,10 @@
 Module d'activité Teams
 ==================================
-Module permettant créer une ressource Teams (équipe ou réunion) depuis un cours moodle.
+Module permettant de créer une ressource Teams (équipe ou réunion/classe virtuelle) depuis un cours moodle.
 
 Objectifs
 ------------
-Les objectifs de ce module étaient de pouvoir créer une resource Teams à partir d'un cours moodle, d'accéder à celle-ci depuis le cours et d'y retrouver les inscrits au cours comme membres. 
+Les objectifs de ce module étaient de pouvoir créer une resource Teams à partir d'un cours moodle, d'accéder à celle-ci depuis le cours et d'y retrouver facilement les inscrits au cours. 
 
 Pré-requis
 ------------
@@ -34,7 +34,7 @@ Vous pouvez également récupérer les versions les plus récentes de ces librai
   
 3. Aller sur la page de notifications pour finaliser l'installation du plugin.
 
-4. Une fois l'installation terminée, plusieurs options d'administration sont à renseigner:
+4. Une fois l'installation terminée, plusieurs options d'administration seront à renseigner:
 
 > Administration du site -> Plugins -> Modules d'activités -> Teams -> client_id<br/>
 > Administration du site -> Plugins -> Modules d'activités -> Teams -> tenant_id<br/>
@@ -60,7 +60,7 @@ Présentation / Fonctionnalités
 <p>Création une équipe Teams:</p>
 
 - Trois choix de population pour une équipe:  
-  - tous les inscrits au cours: tous les utilisateurs inscrits au cours (quel que soit leur rôle) seront ajoutés comme membres de l'équipe. Par défaut, les gestionnaires du cours seront paramétrés comme propriétaires de l'équipe.
+  - tous les inscrits au cours: tous les utilisateurs inscrits au cours (peu importe leur rôle) seront ajoutés comme membres de l'équipe. Par défaut, les gestionnaires du cours seront paramétrés comme propriétaires de l'équipe.
   - un ou plusieurs groupe(s): seuls les utilisateurs du(des) groupe(s) sélectionné(s) seront ajoutés à l'équipe. Par défaut, seul le créateur de l'activité sera ajouté comme propriétaire de l'équipe (sauf si on coche la case indiquant d'inscrire les autres gestionnaires comme propriétaires).
   - utilisateur(s) sélectionné(s): seuls les utilisateurs sélectionné(s) seront ajoutés à l'équipe. Par défaut, seul le créateur de l'activité sera ajouté comme propriétaire de l'équipe (sauf si on coche la case indiquant d'inscrire les autres gestionnaires comme propriétaires).
 - Affichage sur la page de cours du lien vers l'équipe nouvellement créée.
@@ -92,19 +92,22 @@ Exemples json:
 
 - Création d'une réunion accessible directement.
 - Possibilité de fixer des dates de début et de fin pour la réunion qui remonteront au niveau du calendrier Moodle et du bloc "Evénements à venir".
-- Envoi possible d'une notification à la création avec le lien direct vers cette réunion.
+- Envoi possible d'une notification à la création de la réunion avec le lien direct vers cette réunion.
 
 <p>Note: il ne sera pas possible de restaurer une activité Teams. Si celle-ci est supprimée elle ne se retrouvera pas dans la corbeille du cours.</p>
 
 [EQUIPE] Synchronisation des membres
 -----
 
+Pour la synchronisation des membres des équipes le choix a été fait de le faire via un script powershell. L'utilisation de l'API à ce niveau ne paraissant pas pertinente et assez efficace compte tenu du potentiel volume de données à traiter.<br/>
+Le script s'appuiera sur le json fourni sur moodle qui listera les membres attendus pour chaque équipe.
+
 Pistes d'améliorations
 -----
-- Permettre l'ajout en direct des utilisateurs dans l'équipe. Eviter ainsi d'attendre une première synchro avec le script powershell pour avoir une équipe "remplie".
+- Permettre l'ajout en direct des utilisateurs dans l'équipe. Eviter ainsi d'attendre une première synchronisation via le script powershell pour avoir une équipe "remplie".
 - Prendre en compte la période de disponibilité d'une réunion définie dans moodle au niveau de Teams (actuellement la fonctionnalité ne semble pas fonctionner via l'API) et l'afficher dans le calendrier Teams.
 - Ajout d'options supplémentaires (si possible via l'API). Ex: Salle d'attente, Qui peut présenter...
-- Réunion: contrôler l'existence dans Teams au niveau de la visualisation et de l'édition.
+- Contrôler l'existence dans Teams d'une réunion au niveau de la visualisation et de l'édition dans moodle.
 - Ajouter un réglage dans l'administration pour sélectionner les différents types de ressources qu'il sera possible d'ajouter via le module.
 - Prise en compte du préfixe dans l'édition inline du nom de l'activité.
 <p>N'hésitez pas à nous proposer des améliorations et/ou des développements/pull requests pour enrichir le plugin.</p>  

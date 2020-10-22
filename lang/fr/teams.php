@@ -32,7 +32,7 @@ $string['teams:addinstance'] = 'Ajouter une ressource Teams';
 $string['teams:view'] = 'Visualiser une ressource Teams';
 $string['privacy:metadata'] = 'Le module Ressource Teams ne stocke aucune donnée personnelle.';
 $string['use_prefix'] = 'Utiliser un préfixe dans le nom de la ressource';
-$string['use_prefix_help'] = 'Si cette case est cochée un préfixe du type "[TYPE]" sera ajouté au nom de la ressource pour identifier le type de ressource (équipe, réunion...).';
+$string['use_prefix_help'] = 'Si cette case est cochée un préfixe du type "[TYPE]" sera ajouté au nom de la ressource pour identifier le type de la ressource (équipe, réunion...).';
 $string['notunique'] = 'L\'adresse email n\'est pas unique dans l\'Active Directory Azure.';
 $string['notfound'] = 'L\'adresse email n\'a pas pu être reliée à un utilisateur dans l\'Active Directory Azure.';
 
