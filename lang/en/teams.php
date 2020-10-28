@@ -24,13 +24,13 @@
  */
 
 $string['modulename'] = 'Teams';
-$string['modulename_help'] = 'Mod which permits to create a Teams channel and to display a link to it';
+$string['modulename_help'] = 'Mod which permits to create a Teams resource and to display a link to it. For now Teams resources you can add are teams and online meetings (or virtual classrooms).<br/>Please note that users and especially students must be registered with Office 365 to be able to access and use it.';
 $string['modulenameplural'] = 'Teams';
 $string['pluginname'] = 'Teams';
 $string['pluginadministration'] = 'Teams Resource';
 $string['teams:addinstance'] = 'Add a Teams Resource';
 $string['teams:view'] = 'View a Teams Resource';
-$string['privacy:metadata'] = 'Team Resource plugin does not store or transmit any personal data.';
+$string['privacy:metadata'] = 'Teams Resource plugin does not store or transmit any personal data.';
 $string['use_prefix'] = 'Use prefix in the resource name';
 $string['use_prefix_help'] = 'If checked a prefix like "[TYPE]" will be use in the resource name to identify its type (team, online meeting...).';
 $string['notunique'] = 'The email is not unique in Azure Active Directory.';

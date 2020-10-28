@@ -24,7 +24,7 @@
  */
 
 $string['modulename'] = 'Teams';
-$string['modulename_help'] = 'Module permettant de créer un équipe Teams pour votre cours et d\'afficher le lien vers celui-ci.<br/> Attention les étudiants devront être inscrits à Office 365 pour pouvoir y accéder.';
+$string['modulename_help'] = 'Module permettant de créer une ressource Teams pour votre cours et d\'afficher le lien vers celle-ci. Les ressources actuellement disponible à la création sont les équipes et les réunions (ou classes virtuelles) Teams.<br/> Attention les utilisateurs et notamment les étudiants devront avoir créé ou activer leur compte Office 365 pour pouvoir y accéder.';
 $string['modulenameplural'] = 'Teams ';
 $string['pluginname'] = 'Teams';
 $string['pluginadministration'] = 'Ressource Teams';
