@@ -40,14 +40,16 @@ if (isset($team_id)) {
     if ($team) {
         $population = teams_get_population($team, false);
         $response->members = ($team) ? $population->members : [];
-        $response->owners = ($team) ? teams_get_owners(get_course($team->course), $team) : [];
+        $response->owners = ($team) ? array_values(teams_get_owners(get_course($team->course), $team)) : [];
         $response->members = array_values(array_diff($response->members, $response->owners)); // Not displays owners in the "members" array
     }
 }
 else {
-    // No team id => List all the created teams
+    // No team id => List all the created teams (and visible).
     $teams = [];
-    $records = $DB->get_records('teams', array('type' => 'team'));
+    $module = $DB->get_record('modules', array('name' => 'teams'));
+    $records = $DB->get_records_sql('SELECT u.* FROM {teams} t JOIN {course_modules} cm ON t.id = cm.instance 
+                                                WHERE t.type = "team" AND cm.visible = 1 AND cm.module = ' . $module->id);
     foreach ($records as $record) {
         $teams[] = $record->resource_teams_id;
     }

@@ -54,4 +54,15 @@ if ($ADMIN->fulltree) {
         get_string('notif_mail_help', 'mod_teams'),
         0
     ));
+    $settings->add(new admin_setting_configselect('mod_teams/meeting_default_duration',
+        get_string('meeting_default_duration', 'mod_teams'),
+        get_string('meeting_default_duration_help', 'mod_teams') ,
+        '+2 hours',
+        array(
+            '+30 minutes'   =>  get_string('numminutes', '',30),
+            '+1 hour'       =>  get_string('numhours', 'moodle', 1),
+            '+2 hours'      =>  get_string('numhours', 'moodle', 2),
+            '+3 hours'      =>  get_string('numhours', 'moodle', 3),
+        )
+    ));
 }

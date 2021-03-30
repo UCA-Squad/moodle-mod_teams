@@ -399,20 +399,112 @@ class Office365
      * Function to create a new online meeting.
      * @param string $userId the organizer id of the meeting.
      * @param string $subject the subject of the meeting.
-     * @param DateTime $startDateTime the meeting start date.
-     * @param DateTime $endDateTime the meeting end date.
+     * @param $startDateTime the meeting start date.
+     * @param $endDateTime the meeting end date.
      * @return Model\OnlineMeeting the created meeting.
      * @throws \Microsoft\Graph\Exception\GraphException
      */
-    public function createBroadcastEvent(string $userId, string $subject, DateTime $startDateTime, DateTime $endDateTime)
+    public function createBroadcastEvent(string $subject, $startDateTime, $endDateTime, $user)
+    {
+        $event = new \Microsoft\Graph\Model\Event();
+        $start = ($startDateTime > 0) ? new DateTime(date('Y-m-d\TH:i:s.0000000', $startDateTime)) : new DateTime('now');
+        $event->setStart(["dateTime" => $start->format('Y-m-d\TH:i:s.0000000'), "timeZone" => timezone_name_get($start->getTimeZone())]);
+        if ($endDateTime > 0) {
+            $end = new DateTime(date('Y-m-d\TH:i:s.0000000', $endDateTime));
+            $event->setEnd(["dateTime" => $end->format('Y-m-d\TH:i:s.0000000'), "timeZone" => timezone_name_get($end->getTimeZone())]);
+        }
+        else {
+            // If close date is empty we use configuration setting to fix the end of the meeting to avoid confusions.
+            $default_end = date('Y-m-d\TH:i:s.0000000', strtotime($start->format('Y-m-d\TH:i:s.0000000') . " " . get_config('mod_teams', 'meeting_default_duration')));
+            $event->setEnd(['dateTime' => $default_end, 'timeZone' => timezone_name_get($start->getTimeZone())]);
+        }
+        $event->setSubject($subject);
+        $event->setAllowNewTimeProposals(false);
+        $recipient = new \Microsoft\Graph\Model\Recipient();
+        $recipient->setEmailAddress(['name' => fullname($user), 'address' => $user->email]);
+        $event->setOrganizer($recipient);
+        $event->setIsOrganizer(true);
+        $event->setType("singleInstance");
+        $event->setResponseRequested(false);
+        $event->setIsReminderOn(false);
+        $event->setReminderMinutesBeforeStart(0);
+        $attendee = new \Microsoft\Graph\Model\Attendee();
+        $attendee->setEmailAddress(['name' => fullname($user), 'address' => $user->email]);
+        $attendees = [$attendee];
+        $event->setAttendees($attendees);
+        $event->setIsOnlineMeeting(true);
+        $event->setOnlineMeetingProvider("teamsForBusiness");
+        $data = $event->jsonSerialize();
+
+        $graph = $this->getGraphApi("beta");
+        $email = strtolower($user->email);
+
+        try {
+            $response = $graph->createRequest("POST", "/users/$email/events")
+                ->attachBody($data)
+                ->setReturnType(\Microsoft\Graph\Model\Event::class)
+                ->execute();
+            return $response;
+        }
+        catch (Exception $exception)
+        {
+            throw $exception;
+        }
+    }
+
+    /**
+     * Update a broadcast event.
+     * @param $event_id identifiant of the created event.
+     * @param $datas form data.
+     * @param $user user who created the event.
+     * @return Http\GraphResponse|mixed
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    public function updateBroadcastEvent($event_id, $datas, $user)
+    {
+        global $USER;
+        $event = new \Microsoft\Graph\Model\Event();
+        $event->setSubject(str_replace(get_string('meeting_prefix', 'mod_teams'), '', $datas->name));
+        $start = ($datas->opendate > 0) ? new DateTime(date('Y-m-d\TH:i:s.0000000', $datas->opendate)) : new DateTime('now');
+        $event->setStart(['dateTime' => $start->format('Y-m-d\TH:i:s.0000000'), 'timeZone' => timezone_name_get($start->getTimeZone())]);
+        if ($datas->closedate > 0) {
+            $end = new DateTime(date('Y-m-d\TH:i:s.0000000', $datas->closedate));
+            $event->setEnd(['dateTime' => $end->format('Y-m-d\TH:i:s.0000000'), 'timeZone' => timezone_name_get($end->getTimeZone())]);
+        }
+        else {
+            // If close date is empty we use configuration setting to fix the end of the meeting to avoid confusions.
+            $default_end = date('Y-m-d\TH:i:s.0000000', strtotime($start->format('Y-m-d\TH:i:s.0000000') . " " . get_config('mod_teams', 'meeting_default_duration')));
+            $event->setEnd(['dateTime' => $default_end, 'timeZone' => timezone_name_get($start->getTimeZone())]);
+        }
+        $data = $event->jsonSerialize();
+
+        $graph = $this->getGraphApi("beta");
+        $email = (!empty($datas->createforroom)) ? $datas->createforroom : strtolower($user->email);
+
+        try {
+            $response = $graph->createRequest("PATCH", "/users/$email/events/$event_id")
+                ->attachBody($data)
+                ->setReturnType(\Microsoft\Graph\Model\Event::class)
+                ->execute();
+
+            return $response;
+        }
+        catch (Exception $exception)
+        {
+            throw $exception;
+        }
+    }
+
+    /**
+     * Create an online meeting and generate the meeting link available since its creation.
+     * @param string $userId the identifiant of the creator.
+     * @param string $subject the subject of the reunion.
+     * @return Http\GraphResponse|mixed
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    public function createOnlineMeeting(string $userId, string $subject)
     {
         $onlineMeeting = new \Microsoft\Graph\Model\OnlineMeeting();
-        $onlineMeeting->setStartDateTime($startDateTime->format("Y-m-d\TH:i:s\Z"));
-        $onlineMeeting->setEndDateTime($endDateTime->format("Y-m-d\TH:i:s\Z"));
-        /*
-        $onlineMeeting->setStartDateTime($startDate->getTimestamp()+11644473600);
-        $onlineMeeting->setEndDateTime($endDate->getTimestamp()+11644473600);
-        */
         $onlineMeeting->setSubject($subject);
         $user = new \Microsoft\Graph\Model\Identity();
         $user->setId($userId);
@@ -435,32 +527,68 @@ class Office365
                 ->attachBody($data)
                 ->setReturnType(\Microsoft\Graph\Model\OnlineMeeting::class)
                 ->execute();
-
             return $response;
         }
-        catch (Exception $exception) {
+        catch (Exception $exception)
+        {
             throw $exception;
         }
     }
 
     /**
-     * "Getter" of the meeting, with a given id.
+     * Get the meeting.
+     * @param $teams the moodle mod teams object.
+     * @return bool|Http\GraphResponse|mixed
+     * @throws \Microsoft\Graph\Exception\GraphException
+     * @throws dml_exception
+     */
+    public function getMeetingObject($teams)
+    {
+        global $DB;
+        if (!$teams->reuse_meeting) {
+            $user = $DB->get_record('user', array('id' => $teams->creator_id));
+            return $this->getBroadcastEvent($user->email, $teams->resource_teams_id);
+        }
+        //@todo: check if functionnal.
+//        else {
+//            return $this->getOnlineMeeting($teams->resource_teams_id);
+//        }
+
+        return null;
+    }
+
+    /**
+     * "Getter" of the online meeting object.
      * @param string $meetingId the meeting id.
-     * @return Model\OnlineMeeting the meeting.
+     * @return Http\GraphResponse|mixed
      * @throws \Microsoft\Graph\Exception\GraphException
      */
-    public function getBroadcastEvent(string $meetingId)
+    public function getOnlineMeeting(string $meetingId)
     {
         $queryParams = array(
             '$filter' => "VideoTeleconferenceId eq '$meetingId'"
         );
 
         $url = '/communications/onlineMeetings/?' . http_build_query($queryParams);
-    //        $url = "/communications/onlineMeetings/?\$filter=VideoTeleconferenceId eq '$meetingId'";
+//        $url = "/communications/onlineMeetings/?\$filter=VideoTeleconferenceId eq '$meetingId'";
         $graph = $this->getGraphApi();
-
         return $graph->createRequest("GET", $url)
             ->setReturnType(\Microsoft\Graph\Model\OnlineMeeting::class)
+            ->execute();
+    }
+
+    /**
+     * "Getter" of the meeting, with a given id.
+     * @param string $user the user id.
+     * @param string $event_id the meeting id.
+     * @return Model\OnlineMeeting the meeting.
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    public function getBroadcastEvent($user, $event_id)
+    {
+        $graph = $this->getGraphApi();
+        return $graph->createRequest("GET", "/users/$user/events/$event_id")
+            ->setReturnType(\Microsoft\Graph\Model\Event::class)
             ->execute();
     }
 
@@ -470,7 +598,7 @@ class Office365
      * @return Http\GraphResponse|mixed
      * @throws \Microsoft\Graph\Exception\GraphException
      */
-    public function deleteBroadcastEvent(string $meetingId)
+    public function deleteOnlineMeeting(string $meetingId)
     {
         $url = '/communications/onlineMeetings/?' . $meetingId;
         $graph = $this->getGraphApi();

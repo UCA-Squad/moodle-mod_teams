@@ -57,7 +57,9 @@ class mod_teams_mod_form extends moodleform_mod
             // Current user had a correct account.
             $edit_ok = true;
             $default_type = ($this->current->id) ? $this->current->type : "team";
+            $default_reuse = ($this->current->id) ? $this->current->reuse_meeting : 1;
             $teamexists = true;
+            $default_owners = "managers";
             if (!empty($this->current->id)) {
                 // Resource mod edition
                 if ($this->current->type != "meeting") {
@@ -68,6 +70,7 @@ class mod_teams_mod_form extends moodleform_mod
                         $teamexists = false;
                     }
 
+                    $default_owners = ($this->current->enrol_managers) ? "managers" : (($this->current->other_owners === null) ? "creator" : "others");
                     if ($this->current->population == "groups") {
                         $this->current->groups = json_decode($this->current->selection);
                     } else {
@@ -77,6 +80,17 @@ class mod_teams_mod_form extends moodleform_mod
                         if ($this->current->population == "users") {
                             $this->current->users = json_decode($this->current->selection);
                         }
+                    }
+                    if ($this->current->other_owners !== null) {
+                        $this->current->other_owners = json_decode($this->current->other_owners);
+                    }
+                } else {
+                    try {
+                        $office->getMeetingObject($this->current);
+                        $teamexists = true;
+                    }
+                    catch (Exception $e) {
+                        $teamexists = false;
                     }
                 }
                 // Default name, if prefix is used we do not display it here.
@@ -126,6 +140,7 @@ class mod_teams_mod_form extends moodleform_mod
 
                     $populationslist = [
                         'course' => get_string('population_all', 'mod_teams'),
+                        'students' => get_string('population_students', 'mod_teams'),
                         'groups' => get_string('population_groups', 'mod_teams'),
                         'users' => get_string('population_users', 'mod_teams'),
                     ];
@@ -149,16 +164,13 @@ class mod_teams_mod_form extends moodleform_mod
 
                     $mform->addElement('searchableselector', 'groups', get_string('group'), $groups, array('multiple'));
                     $mform->hideIf('groups', 'population', 'eq', 'course');
+                    $mform->hideIf('groups', 'population', 'eq', 'students');
                     $mform->hideIf('groups', 'population', 'eq', 'users');
 
                     $mform->addElement('searchableselector', 'users', get_string('users'), $enrolled, array('multiple'));
                     $mform->hideIf('users', 'population', 'eq', 'course');
+                    $mform->hideIf('users', 'population', 'eq', 'students');
                     $mform->hideIf('users', 'population', 'eq', 'groups');
-
-                    $mform->addElement('advcheckbox', 'enrol_managers', get_string('enrol_managers', 'mod_teams'));
-                    $mform->setDefault('enrol_managers', false);
-                    $mform->hideIf('enrol_managers', 'population', 'eq', 'course');
-                    $mform->addHelpButton('enrol_managers', 'enrol_managers', 'mod_teams');
 
                     $mform->hideIf('group_team', 'type', 'eq', 'meeting');
                     $mform->hideIf('population', 'type', 'eq', 'meeting');
@@ -166,7 +178,33 @@ class mod_teams_mod_form extends moodleform_mod
                     $mform->hideIf('users', 'type', 'eq', 'meeting');
                     $mform->hideIf('enrol_managers', 'type', 'eq', 'meeting');
 
+                    $ownerschoice = [
+                        'creator' => get_string('owners_creator', 'mod_teams'),
+                        'others' => get_string('owners_others', 'mod_teams'),
+                        'managers' => get_string('owners_managers', 'mod_teams'),
+                    ];
+
+                    $mform->addElement('select', 'owners', get_string('owners', 'mod_teams'), $ownerschoice);
+                    $mform->addHelpButton('owners', 'owners', 'modteams');
+                    $mform->setDefault('owners', $default_owners);
+                    $mform->hideIf('owners', 'type', 'eq', 'meeting');
+                    $mform->hideIf('owners', 'population', 'eq', 'course');
+
+                    $mform->addElement('searchableselector', 'other_owners', get_string('other_owners', 'mod_teams'), $enrolled, array('multiple'));
+                    $mform->addHelpButton('other_owners', 'other_owners', 'mod_teams');
+                    $mform->hideIf('other_owners', 'population', 'eq', 'course');
+                    $mform->hideIf('other_owners', 'owners', 'neq', 'others');
+
                     /* -- Meeting creation -- */
+                    $reusearray = array();
+                    $reusearray[] = $mform->createElement('radio', 'reuse_meeting', '', get_string('reuse_meeting_yes', 'mod_teams'), 1);
+                    $reusearray[] = $mform->createElement('radio', 'reuse_meeting', '', get_string('reuse_meeting_no', 'mod_teams'), 0);
+                    $mform->addGroup($reusearray, 'reuse_meeting', get_string('reuse_meeting', 'mod_teams'), array(' '), false);
+                    $mform->addHelpButton('reuse_meeting', 'reuse_meeting', 'mod_teams');
+                    $mform->setDefault('reuse_meeting', $default_reuse);
+                    $mform->hideIf('reuse_meeting', 'type', 'eq', 'team');
+                    $mform->disabledIf('reuse_meeting', 'team_id', 'neq', ''); // Disable if we edit the resource
+
                     $enableopengroup = array();
                     $enableopengroup[] =& $mform->createElement('date_time_selector', 'opendate', '');
                     $enableopengroup[] =& $mform->createElement('checkbox', 'useopendate', get_string('enable', 'moodle'));
@@ -183,6 +221,8 @@ class mod_teams_mod_form extends moodleform_mod
 
                     $mform->hideIf('enableopengroup', 'type', 'eq', 'team');
                     $mform->hideIf('enableclosegroup', 'type', 'eq', 'team');
+                    $mform->hideIf('enableopengroup', 'reuse_meeting', 'eq', 1);
+                    $mform->hideIf('enableclosegroup', 'reuse_meeting', 'eq', 1);
 
                     $dateitems = array();
                     $dateitems[] =& $mform->createElement('html', get_string('dates_help', 'mod_teams'));
@@ -239,6 +279,10 @@ class mod_teams_mod_form extends moodleform_mod
             if (isset($data['useopendate']) && isset($data['useclosedate']) && $data['closedate'] < $data['opendate']) {
                 $errors['enableclosegroup'] = get_string('error_dates', 'mod_teams');
             }
+            // Checks close date is not already past.
+            if (isset($data['useclosedate']) && $data['closedate'] < time()) {
+                $errors['enableclosegroup'] = get_string('error_dates_past', 'mod_teams');
+            }
         }
 
         return $errors;
@@ -259,6 +303,44 @@ class mod_teams_mod_form extends moodleform_mod
             $defaultvalues['useclosedate'] = 0;
         } else {
             $defaultvalues['useclosedate'] = 1;
+        }
+    }
+
+    /**
+     * Allows modules to modify the data returned by form get_data().
+     * This method is also called in the bulk activity completion form.
+     *
+     * Only available on moodleform_mod.
+     *
+     * @param stdClass $data the form data to be modified.
+     */
+    public function data_postprocessing($data) {
+        parent::data_postprocessing($data);
+        if (!empty($data->completionunlocked)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionentriesenabled) || !$autocompletion) {
+                $data->completionentries = 0;
+            }
+        }
+
+        // "No selection" case
+        if (!empty($data->groups)) {
+            if (($key = array_search("", $data->groups)) !== false) {
+                unset($data->groups[$key]);
+            }
+            $data->groups = array_values($data->groups);
+        }
+        if (!empty($data->users)) {
+            if (($key = array_search("", $data->users)) !== false) {
+                unset($data->users[$key]);
+            }
+            $data->users = array_values($data->users);
+        }
+        if (!empty($data->other_owners)) {
+            if (($key = array_search("", $data->other_owners)) !== false) {
+                unset($data->other_owners[$key]);
+            }
+            $data->other_owners = array_values($data->other_owners);
         }
     }
 

@@ -35,10 +35,18 @@ require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Mo
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Group.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Team.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/OnlineMeeting.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/OnlineMeetingInfo.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Identity.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/IdentitySet.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/MeetingParticipantInfo.php');
 require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/MeetingParticipants.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Recipient.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/AttendeeBase.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Attendee.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/DateTimeTimeZone.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/ItemBody.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/OutlookItem.php');
+require_once($CFG->dirroot . '/mod/teams/vendor/microsoft/microsoft-graph/src/Model/Event.php');
 require_once($CFG->dirroot . '/mod/teams/classes/Office365.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 
@@ -78,14 +86,14 @@ function teams_add_instance($data, $mform) {
         $displayoptions = array();
         $data->display = RESOURCELIB_DISPLAY_NEW;
         $data->displayoptions = serialize($displayoptions);
-
         $given_name = $data->name;
         $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string($data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
         $data->intro = $data->intro;
         $data->introformat = "1";
         $data->timemodified = time();
         $data->population = ($data->type == "team") ? $data->population : "meeting";
-        $data->enrol_managers = ($data->population != "course") ? (($data->type == "team") ? false : $data->enrol_managers) : true;
+        $data->enrol_managers = ($data->population != "course") ? (($data->type == "meeting") ? false : ($data->owners == "managers")) : true;
+        $data->other_owners = ($data->other_owners) ? json_encode($data->other_owners) : null;
 
         try {
             $office = get_office();
@@ -93,6 +101,13 @@ function teams_add_instance($data, $mform) {
         }
         catch (Throwable $th) {
             new Exception(get_string('notfound', 'mod_teams'));
+        }
+
+        if (empty($data->useopendate)) {
+            $data->opendate = 0;
+        }
+        if (empty($data->useclosedate)) {
+            $data->closedate = 0;
         }
 
         $data->population = ($data->type == "team") ? $data->population : "meeting";
@@ -135,11 +150,18 @@ function teams_add_instance($data, $mform) {
             $data->externalurl = url_fix_submitted_url($team->getProperties()['webUrl']);
         } else {
             // Online meeting creation.
-            $meeting = $office->createBroadcastEvent($userId, $given_name, new DateTime('now'), new DateTime('now'));
+            $meeting = ($data->reuse_meeting == 0)
+                ? $office->createBroadcastEvent($given_name, $data->opendate, $data->closedate, $USER)
+                : $office->createOnlineMeeting($userId, $given_name);
             $data->resource_teams_id = $meeting->getId();
-            $data->externalurl = $meeting->getJoinWebUrl();
+            $data->externalurl = ($data->reuse_meeting == 0) ? $meeting->getOnlineMeeting()->getJoinUrl() : $meeting->getJoinWebUrl();
+            if ($data->reuse_meeting == 0) {
+                // We match the dates of the Teams calendar event with Moodle calendar.
+                $data->opendate = ($data->opendate > 0) ? $data->opendate : strtotime($meeting->getStart()->getDateTime());
+                $data->closedate = ($data->closedate > 0) ? $data->closedate : strtotime($meeting->getEnd()->getDateTime());
+            }
 
-            if ($meeting->getJoinWebUrl() != null) {
+            if ($data->externalurl != null) {
                 if (get_config('mod_teams', 'notif_mail') == true) {
                     // Send meeting link to the creator.
                     $text = sprintf(get_string('create_mail_content', 'mod_teams'), $given_name, $COURSE->fullname);
@@ -167,13 +189,6 @@ function teams_add_instance($data, $mform) {
             }
         }
 
-        if (empty($data->useopendate)) {
-            $data->opendate = 0;
-        }
-        if (empty($data->useclosedate)) {
-            $data->closedate = 0;
-        }
-
         $data->creator_id = $USER->id;
         $data->id = $DB->insert_record('teams', $data); // Insert in database.
         teams_set_events($data); // Create meeting events if defined
@@ -198,22 +213,13 @@ function teams_update_instance($data, $mform) {
         $displayoptions = array();
         $data->display = RESOURCELIB_DISPLAY_NEW;
         $data->displayoptions = serialize($displayoptions);
-
         $given_name = $data->name;
         $data->name = (get_config('mod_teams', 'use_prefix') == true) ? get_string($data->type . '_prefix', 'mod_teams') . $data->name : $given_name;
         $data->intro = $data->intro;
         $data->introformat = "1";
         $data->timemodified = time();
-        $data->enrol_managers = ($data->type == "team") ? false : ((isset($data->population) && $data->population != "course") ? $data->enrol_managers : true);
-
-        if ($data->type == "team") {
-            // Team update
-            $population = teams_get_population($data);
-            $selection = teams_get_selection($data);
-            $data->selection = ($selection) ? json_encode($selection) : null;
-            $data->members = json_encode($population->members);
-        }
-        $data->creator_id = (isset($data->creator_id)) ? $data->creator_id : $USER->id;
+        $data->enrol_managers = ($data->population != "course") ? (($data->type == "meeting") ? false : ($data->owners == "managers")) : true;
+        $data->other_owners = ($data->other_owners) ? json_encode($data->other_owners) : null;
 
         if (empty($data->useopendate)) {
             $data->opendate = 0;
@@ -221,6 +227,33 @@ function teams_update_instance($data, $mform) {
         if (empty($data->useclosedate)) {
             $data->closedate = 0;
         }
+
+        if ($data->type == "team") {
+            // Team update
+            $population = teams_get_population($data);
+            $selection = teams_get_selection($data);
+            $data->selection = ($selection) ? json_encode($selection) : null;
+            $data->members = json_encode($population->members);
+        } else {
+            $team = $DB->get_record('teams', array('id' => $data->instance));
+            if ($data->opendate != $team->opendate || $data->closedate != $team->closedate || $team->name != $data->name) {
+                // We update the event dates.
+                try {
+                    $office = get_office();
+                    $creator = $DB->get_record('user', array('id' => $team->creator_id));
+                    $userId = $office->getUserId($creator->email);
+                } catch (Throwable $th) {
+                    new Exception(get_string('notfound', 'mod_teams'));
+                }
+                $meeting = $office->updateBroadcastEvent($team->resource_teams_id, $data, $creator);
+                if ($data->reuse_meeting == 0) {
+                    // We match the dates of the Teams calendar event with Moodle calendar.
+                    $data->opendate = ($data->opendate > 0) ? $data->opendate : strtotime($meeting->getStart()->getDateTime());
+                    $data->closedate = ($data->closedate > 0) ? $data->closedate : strtotime($meeting->getEnd()->getDateTime());
+                }
+            }
+        }
+        $data->creator_id = (isset($data->creator_id)) ? $data->creator_id : $USER->id;
 
         $data->id = $data->instance;
         teams_set_events($data); // Create meeting events if defined
@@ -276,7 +309,8 @@ function teams_get_coursemodule_info($coursemodule) {
     require_once("$CFG->dirroot/mod/url/locallib.php");
 
     if (!$resource = $DB->get_record('teams', array('id' => $coursemodule->instance),
-        'id, course, name, display, displayoptions, externalurl, intro, introformat, enrol_managers, population, selection, resource_teams_id, creator_id, type, opendate, closedate')) {
+        'id, course, name, display, displayoptions, externalurl, intro, introformat, enrol_managers, population, selection, 
+            resource_teams_id, creator_id, opendate, closedate, type, reuse_meeting, other_owners')) {
         return null;
     }
 
@@ -318,6 +352,7 @@ function teams_get_coursemodule_info($coursemodule) {
  */
 function teams_get_population($datas, $form = true)
 {
+    global $DB;
     $groups = [];
     $members = [];
 
@@ -325,6 +360,14 @@ function teams_get_population($datas, $form = true)
         case "course":
             foreach (get_enrolled_users(context_course::instance($datas->course), 'mod/teams:view') as $member) {
                 if (!in_array($member, $members)) {
+                    $members[] = $member->email;
+                }
+            }
+            break;
+
+        case "students":
+            foreach (get_enrolled_users(context_course::instance($datas->course), 'mod/teams:view') as $member) {
+                if (!has_capability('mod/teams:addinstance', context_course::instance($datas->course), $member) && !in_array($member, $members)) {
                     $members[] = $member->email;
                 }
             }
@@ -344,6 +387,12 @@ function teams_get_population($datas, $form = true)
 
         case "users":
             $members = ($form) ? $datas->users : json_decode($datas->selection);
+            foreach ($members as $key => $member) {
+                $user = $DB->get_record('user', array('email' => $member));
+                if (!$user || !has_capability('mod/teams:view', context_course::instance($datas->course), $user)) {
+                    unset($members[$key]);
+                }
+            }
             break;
 
         default: break;
@@ -382,6 +431,9 @@ function teams_get_owners($course, $team = null)
 
     if ($team && !$team->enrol_managers)  {
         $managers = [core_user::get_user($team->creator_id, 'email')->email];
+        if ($team->other_owners) {
+            $managers = array_merge(array_values($managers), json_decode($team->other_owners));
+        }
     }
     else {
         $manager = new course_enrolment_manager($PAGE, $course, 0, 1, '', 0, -1);
@@ -406,7 +458,7 @@ function teams_get_owners($course, $team = null)
         }
     }
 
-    return $managers;
+    return array_unique($managers);
 }
 
 /**

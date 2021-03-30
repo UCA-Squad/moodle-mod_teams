@@ -56,9 +56,11 @@ $string['meeting_prefix'] = '[REUNION] ';
 $string['population'] = 'Population ciblée';
 $string['population_help'] = '<p>Choisissez la population que vous voulez inscrire à votre team:
                                         <ul><li>tous les inscrits au cours (étudiants + enseignants): tous les utilisateurs inscrits à ce cours seront ajoutés comme membres de la team, vous et les autres gestionnaires du cours seront inscrit(e)s comme propriétaire de la team </li>
+                                        <li>tous les étudiants inscrits au cours : seulement les étudiants inscrits à ce cours seront ajoutés comme membre de l\'équipe. Par défaut vous serez inscrite(e) comme propriétaire de cette équipe et les autres gestionnaires/enseignants ne seront pas ajoutés comme membres de l\'équipe</li>
                                         <li>un ou plusieurs groupes: seuls les membres de ce(s) groupe(s) seront ajoutés comme membres  de la team et vous serez inscrit(e) comme propriétaire de cette team </li>
                                         <li>des utilisateurs précis: seuls les utilisateurs que vous aurez sélectionnés seront ajoutés comme membres de la team et vous serez inscrit(e) comme propriétaire de cette team</li></ul></p>';
 $string['population_all'] = 'Tous les inscrits au cours (étudiants + enseignants)';
+$string['population_students'] = 'Tous les étudiants inscrits au cours';
 $string['population_groups'] = 'Un ou plusieurs groupes';
 $string['population_users'] = 'Des utilisateurs précis';
 $string['enrol_managers'] = 'Inscrire les autres gestionnaires du cours comme propriétaire';
@@ -71,12 +73,18 @@ $string['closedate'] = 'Fin de la réunion';
 $string['closedate_help'] = 'Date à partir de laquelle la ressource ne plus sera disponible. Si cette option n\'est pas activée la réunion restera disponible sans autre action d\'un des organisateurs.';
 $string['closedate_session'] = ' (Fin réunion Teams)';
 $string['dates_help'] = '<div class="alert alert-info"><strong>Attention, la réunion créée depuis cette interface ne sera pas accessible depuis le Calendrier Teams. Vous ne pourrez y accéder que depuis Moodle. Les étudiants ne recevront pas de notification de cette réunion sur leur messagerie.</strong>';
+$string['dates_help'] = '<div class="alert alert-info"><strong>Attention, les étudiants et autres utilisateurs ne recevront pas de notification mail pour la participation à cette réunion.</strong>
+                            <ul><li>Réunion ponctuelle: <ul><li>Elle est visible uniquement dans le calendrier Teams de son créateur. Les étudiants voient la réunion ponctuelle depuis la section de cours où elle a été créée, depuis le bloc "Evénements à venir" et le bloc Calendrier de Moodle (pensez à rajouter ces blocs dans le cours, si besoin)</li>
+                            <li>Si vous n’activez pas les dates de début ou fin de réunion, un créneau sera attribué par défaut (à partir de l’heure de création de la réunion à laquelle on ajoutera la durée de réunion par défaut configurée dans l\'administration moodle). Des tests seront effectués au moment de l\'accès à l\'activité depuis le cours pour vérifier la disponibilité de celle-ci par rapport à cette période et si vous devez donc être redirigés ou non vers la réunion.</li></ul></li>
+                            <li>Réunion permanente: Elle est visible et disponible uniquement depuis la section de cours où elle est ajoutée et utilisable dès sa création.</li></ul>
+                            <p>Important: Tous les changements concernant les équipes et les réunions classe virtuelle réalisés directement depuis Teams (changement du nom, des dates de la réunion...) ne se répercuteront pas dans Moodle.</p>';
 $string['dates_between'] = 'entre le %s et le %s';
 $string['dates_from'] = 'à partir du %s';
 $string['dates_until'] = 'jusqu\'au %s';
 $string['error_groups'] = 'Veuillez choisir au moins un groupe ou bien changez la valeur du type de population.';
 $string['error_users'] = 'Veuillez choisir au moins un utilisateur ou bien changez la valeur du type de population.';
 $string['error_dates'] = 'La date de fin doit être postérieure que la date d\'ouverture.';
+$string['teams:error_dates_past'] = 'La période définie ne pas correspondre à une période déjà passée.';
 $string['no_owner'] = '<p>Vous n\'ếtes pas propriétaire de cette team, vous ne pouvez donc pas éditer les propriétés de celle-ci.</p>
                                 <p>Veuillez contater le(s) propriétaire(s) de la team pour qu\'il vous octroie ces droits d\'administration.</p>';
 $string['teamnotfound'] = 'L\'accès à cette équipe est impossible. Un problème est peut-être survenu sur le serveur Microsoft, auquel cas retentez de vous connecter un peu plus tard. Il est également possible que cette équipe ait été supprimée par un des propriétaires.';
@@ -90,3 +98,22 @@ $string['create_mail_title'] = 'Création de votre réunion Teams';
 $string['messageprovider:meetingconfirm'] = 'Confirmation de la création de réunion Teams';
 $string['notif_mail'] = 'Notification de création de réunion';
 $string['notif_mail_help'] = 'Envoyer une notification suite à la création d\'une réunion avec le lien vers celle-ci.';
+
+$string['owners'] = 'Définir les propriétaires de l\'équipe';
+$string['owners_help'] = '<p>Choisissez les utilisateurs qui seront propriétaires de l\'équipe :
+                                        <ul><li>le créateur de l\'équipe uniquement : seul vous ou l\'utilisateur sélectionnée dans le cas de la création pour autrui sera ajouté comme propriétaire de l\'équipe. </li>
+                                        <li>le créateur + d\'autres utilisateurs : seul le créateur (vous ou la personne pour qui vous allez créer l\'équipe) ainsi que les utilisateurs choisis parmi la liste des inscrits au cours seront ajoutés comme propriétaires de l\'équipe.</li>
+                                        <li>tous les gestionnaires du cours : tous les gestionnaires du cours seront ajoutés comme propriétaires de l\'équipe.</li></ul></p>';
+$string['owners_creator'] = 'Le créateur de l\'équipe uniquement';
+$string['owners_others'] = 'Le créateur + d\'autres utilisateurs';
+$string['owners_managers'] = 'Tous les gestionnaires du cours';
+$string['other_owners'] = 'Nommer d\'autres utilisateurs comme propriétaires de l\'équipe';
+$string['other_owners_help'] = 'Renseigner ici les autres utilisateurs auxquels vous voudriez donner des droits de propriétaires sur cette équipe.';
+$string['reuse_meeting'] = 'Utilisation ?';
+$string['reuse_meeting_help'] = 'Type d\'utilisation de la réunion:
+                                <ul><li>Permanente: le lien de la réunion généré sera accessible pour les inscrits à votre cours dès sa création (hors restriction d\'accès moodle).</li>
+                                <li>Ponctuelle: la réunion est directement accessible à son créateur. Pour les autres utilisateurs moodle fera un contrôle par rapport à la période d\'ouverture définie avant de faire la redirection vers la réunion.</li></ul>';
+$string['reuse_meeting_no'] = 'Ponctuelle';
+$string['reuse_meeting_yes'] = 'Permanente';
+$string['meeting_default_duration'] = 'Durée par défaut de la réunion si une date de fin n\'est pas renseignée';
+$string['meeting_default_duration_help'] = 'Permet de renseigner une durée par défaut pour les réunions crées via le module si une date de fin n\'est pas renseignée. La date de fin par défaut sera calculée par rapport à la date de début rénseignée et en ajoutant cette durée.';

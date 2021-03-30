@@ -54,15 +54,25 @@ $PAGE->set_url('/mod/teams/view.php', array('id' => $cm->id));
 
 $office = get_office();
 if ($resource->type == "meeting") { // Online meeting.
-    if ($resource->opendate != 0) {
-        if(strtotime("now") < $resource->opendate && !has_capability('mod/teams:addinstance', $context)) {
-            notice(sprintf(get_string('meetingnotavailable', 'mod_teams'), teams_print_details_dates($resource, "text")) , new moodle_url('/course/view.php', array('id' => $cm->course)));
+    if ($resource->reuse_meeting == "0") {
+        // Ponctual online meeting.
+        try {
+            $office->getMeetingObject($resource);
+        } catch (Exception $e) {
+            notice(get_string('meetingnotfound', 'mod_teams'), new moodle_url('/course/view.php', array('id' => $cm->course)));
             die;
         }
-    }
-    if($resource->closedate != 0 && strtotime("now") > $resource->closedate && !has_capability('mod/teams:addinstance', $context)) {
-        notice(sprintf(get_string('meetingnotavailable', 'mod_teams'), teams_print_details_dates($resource, "text")) , new moodle_url('/course/view.php', array('id' => $cm->course)));
-        die;
+
+        if ($resource->opendate != 0) {
+            if (strtotime("now") < $resource->opendate && !has_capability('mod/teams:addinstance', $context)) {
+                notice(sprintf(get_string('meetingnotavailable', 'mod_teams'), teams_print_details_dates($resource, "text")), new moodle_url('/course/view.php', array('id' => $cm->course)));
+                die;
+            }
+        }
+        if ($resource->closedate != 0 && strtotime("now") > $resource->closedate && !has_capability('mod/teams:addinstance', $context)) {
+            notice(sprintf(get_string('meetingnotavailable', 'mod_teams'), teams_print_details_dates($resource, "text")), new moodle_url('/course/view.php', array('id' => $cm->course)));
+            die;
+        }
     }
 
     if (!filter_var($resource->externalurl, FILTER_VALIDATE_URL)) { // Incorrect Teams meeting url ?
