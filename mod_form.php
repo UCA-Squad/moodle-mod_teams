@@ -185,7 +185,7 @@ class mod_teams_mod_form extends moodleform_mod
                     ];
 
                     $mform->addElement('select', 'owners', get_string('owners', 'mod_teams'), $ownerschoice);
-                    $mform->addHelpButton('owners', 'owners', 'modteams');
+                    $mform->addHelpButton('owners', 'owners', 'mod_teams');
                     $mform->setDefault('owners', $default_owners);
                     $mform->hideIf('owners', 'type', 'eq', 'meeting');
                     $mform->hideIf('owners', 'population', 'eq', 'course');

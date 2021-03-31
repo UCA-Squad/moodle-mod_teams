@@ -94,10 +94,6 @@ function xmldb_teams_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $reuse)) {
             $dbman->add_field($table, $reuse);
         }
-        $room = new xmldb_field('createforroom', XMLDB_TYPE_CHAR, 80, null, false, null, null);
-        if (!$dbman->field_exists($table, $room)) {
-            $dbman->add_field($table, $room);
-        }
     }
 
     if ($oldversion < 2021020800) {
@@ -107,16 +103,6 @@ function xmldb_teams_upgrade($oldversion) {
         $owners = new xmldb_field('other_owners', XMLDB_TYPE_TEXT, null, null, false, null, null);
         if (!$dbman->field_exists($table, $owners)) {
             $dbman->add_field($table, $owners);
-        }
-    }
-
-    if ($oldversion < 2021021200) {
-        $dbman = $DB->get_manager();
-        $table = new xmldb_table('teams');
-
-        $synchro = new xmldb_field('team_synchrodate', XMLDB_TYPE_INTEGER, 10, null, false, null, 0);
-        if (!$dbman->field_exists($table, $synchro)) {
-            $dbman->add_field($table, $synchro);
         }
     }
 

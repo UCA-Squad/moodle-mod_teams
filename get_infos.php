@@ -48,7 +48,7 @@ else {
     // No team id => List all the created teams (and visible).
     $teams = [];
     $module = $DB->get_record('modules', array('name' => 'teams'));
-    $records = $DB->get_records_sql('SELECT u.* FROM {teams} t JOIN {course_modules} cm ON t.id = cm.instance 
+    $records = $DB->get_records_sql('SELECT t.* FROM {teams} t JOIN {course_modules} cm ON t.id = cm.instance 
                                                 WHERE t.type = "team" AND cm.visible = 1 AND cm.module = ' . $module->id);
     foreach ($records as $record) {
         $teams[] = $record->resource_teams_id;

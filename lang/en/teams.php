@@ -60,7 +60,7 @@ $string['population_help'] = '<p>Select the populaton you want to enrol to the t
                                 <li>one group or more: only this(these) group(s) members will be added as team members and you will be added as this team owner</li>
                                 <li>chosen users: only users you selected will be added as team members and you will be added as this team owner</li></ul></p>';
 $string['population_all'] = 'Enrolled users (students + teachers)';
-$string['teams:population_students'] = 'Enrolled students';
+$string['population_students'] = 'Enrolled students';
 $string['population_groups'] = 'One group or more';
 $string['population_users'] = 'Chosen users';
 $string['enrol_managers'] = 'Enrol all course managers as team owners';
