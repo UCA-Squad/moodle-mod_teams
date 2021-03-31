@@ -1,0 +1,20 @@
+This files describes changes in mod_team plugin,
+information provided here is intended especially for developers.
+
+=== 2021030800 version ===
+
+ * Possibility to enrol only students on the created team.
+ * Possibility to choose a specific population to be team owners.
+ * Change the online meeting creation form to use two different types of meeting: permanent and one shot online meeting.
+ * Add event on Teams calendar for one shot online meeting.
+ * Add setting to choose a default meeting duration.
+ * Improve tests on activity view.
+ * Improve form validation.
+
+=== 2020100800 version ===
+
+* First version of the plugin and first interactions with Microsoft Graph API.
+* Create a team with current user as team owner and possibility to choose the population to add in it.
+* Create an online with direct access.
+* Provide a json file listing users to add in each created teams.
+* Notification of the resource creation (settable in moodle administration).

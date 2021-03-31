@@ -8,8 +8,8 @@ Goals of this plugin were to create a Teams resource from a Moodle course, to ac
 
 Requirements
 ------------
-- Moodle 3.8 or later.<br/>
--> Tests on Moodle 3.8 to 3.9.2 (tests on older moodle versions not made yet).<br/>
+- Moodle 3.7 or later.<br/>
+-> Tests on Moodle 3.7 to 3.10.1 (tests on older moodle versions not made yet).<br/>
 - Composer on your computer/server
 - Have an Azure Active Directory web application registred (or rights to create one).
 
@@ -54,14 +54,24 @@ If checked a prefix will be used in the resource name. For example for a team: "
 
 If checked a notification will be send to the user after an online meeting creation with a direct link to this meeting.
 
+> Site administration -> Plugins -> Activity modules -> Teams -> meeting_default_duration
+
+Parameter to choose in the given list the default meeting duration. This value will be used if the closedate of the meeting is empty in the form. This closedate will be deducted from the startdate and this selected duration.
+
+
 Présentation / Features
 ------------
 <p>Team creation:</p>
 
-- 3 population choices for the team:  
+- 4 population choices for the team:  
   - enrolled users: all course enrolled users (with any role) will be added as team members. By default, course managers will be team owners.
+  - enrolled student(s): only student (user with no management roles) will be added as team members. By default, only the activity creator will be team owner.
   - group(s): only users of this(these) selected group(s) will be added as team members. By default, only the activity creator will be team owner (except if you choose the option to add all course managers as team owners).
-  - selected user(s): only selected user(s) will be added as team members. By default, only the activity creator will be team owner (except if you choose the option to add all course managers as team owners).
+  - selected user(s): only selected user(s) will be added as team members. By default, only the activity creator will be team owner.
+- 3 choices to define the team owners:
+  - team creator only: only the team creator (current user) will be added as team owner.
+  - team creator + other users: the team creator and manually chosen users will be added as team owners.
+  - this cours managers: all the course managers will be added as team owners (feature by default on the previous version of the plugin).
 - Displays link to the new team on the Moodle course page.
 - Team members synchronization in function of the selected population.<br/>
 This synchronization will be made with a powershell script. This script will use a json generated on your moodle (URL: https:mymoodle.com/mod/teams/get_infos.php) and will list all teams created or all expected members for a specific team.
@@ -90,8 +100,11 @@ Json examples:
 
 <p>Online meeting (or virtual classroom):</p>
 
-- Create an online meeting with direct access.
-- Fix start date and end date for a meeting. These dates will be visible on the Moodle calendar and on the "Upcoming events" block. 
+- Create a "permanent" or a "one shot" online meeting:
+  - a permanent meeting does not need any informations about dates and will be accessible since its creation.
+  - a one shot meeting is defined on a specific time slot. It will be accessible since its creation with direct url or in Teams but tests on dates will be made on Moodle to redirect or not to the meeting.
+- Fix start date and end date for a meeting. These dates will be visible on the Moodle calendar, the "Upcoming events" block and on your Teams calendar.
+- Possible editing of the dates for a one shot meeting.
 - Possible sending of a notification after the meeting creation with the direct link to this meeting.
 
 <p>Note: it won't be possible to restore a Teams activity. If this has been deleted it won't be in the course recycle bin.</p>
@@ -99,18 +112,17 @@ Json examples:
 [TEAM] Members synchronization
 -----
 For this members synchonization we made the choice to use a powershell script to do it. Using API here does not seemed relevant or efficient enough with the potential volume of datas to be processed.<br/>
-This script will use the given json file by moodle which lists all expected members for each team.
+This script will use the given json file by moodle which lists all expected members for each team.<br/>
+This powershell script is currently being redesigned in order to be shared later.
 
 Possible improvements
 -----
 - Add directly members to the team. Avoid a first script execution to have a "full" team. 
-- Use the availability period defined in the form directly in Teams (for now this feature does not seem functional with the API) and display it in Teams calendar.
 - Add more options (if possible with the API). Ex: Waiting lobby, Who can present...
-- Control in the moodle visualization and edition pages if an online meeting exists in Teams.
 - Add admin setting to select resource types it will be possible to add with the plugin. 
 - Use the prefix when we edit inline the resource name. 
 <p>Feel free to propose some improvements and/or developments/pull requests to improve this plugin.</p>  
 
 About us
 ------
-<a href="https://www.uca.fr">Université Clermont Auvergne</a> - 2020.<br/>
+<a href="https://www.uca.fr">Université Clermont Auvergne</a> - 2021.<br/>
