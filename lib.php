@@ -218,6 +218,7 @@ function teams_update_instance($data, $mform) {
         $data->intro = $data->intro;
         $data->introformat = "1";
         $data->timemodified = time();
+        $data->population = ($data->type == "team") ? $data->population : "meeting";
         $data->enrol_managers = ($data->population != "course") ? (($data->type == "meeting") ? false : ($data->owners == "managers")) : true;
         $data->other_owners = ($data->other_owners) ? json_encode($data->other_owners) : null;
 
@@ -458,7 +459,7 @@ function teams_get_owners($course, $team = null)
         }
     }
 
-    return array_unique($managers);
+    return is_array($managers) ? array_unique($managers) : $managers;
 }
 
 /**
