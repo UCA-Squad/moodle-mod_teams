@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/url/locallib.php');
 require_once($CFG->dirroot.'/mod/teams/lib.php');
-require_once($CFG->dirroot.'/vendor/autoload.php');
+require_once($CFG->dirroot.'/mod/teams/vendor/autoload.php');
 
 class mod_teams_mod_form extends moodleform_mod
 {
