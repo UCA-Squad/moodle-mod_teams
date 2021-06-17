@@ -26,7 +26,7 @@ require_once('../../config.php');
 require_once("lib.php");
 require_once("$CFG->dirroot/mod/url/locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->dirroot.'/vendor/autoload.php');
+require_once($CFG->dirroot.'/mod/teams/vendor/autoload.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $u = optional_param('u', 0, PARAM_INT); // URL instance id
