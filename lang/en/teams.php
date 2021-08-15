@@ -116,3 +116,5 @@ $string['reuse_meeting_no'] = 'One shot';
 $string['reuse_meeting_yes'] = 'Permanent';
 $string['meeting_default_duration'] = 'Default duration for the meetings if a closedate is not given';
 $string['meeting_default_duration_help'] = 'Default duration  for the meetings created with Teams activit if a close is not given. This closedate will be deducted from the startdate and this selected duration.';
+
+$string['gotoresource'] = 'Go to the Teams resource';

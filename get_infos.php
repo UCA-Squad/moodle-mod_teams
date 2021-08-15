@@ -43,8 +43,7 @@ if (isset($team_id)) {
         $response->owners = ($team) ? array_values(teams_get_owners(get_course($team->course), $team)) : [];
         $response->members = array_values(array_diff($response->members, $response->owners)); // Not displays owners in the "members" array
     }
-}
-else {
+} else {
     // No team id => List all the created teams (and visible).
     $teams = [];
     $module = $DB->get_record('modules', array('name' => 'teams'));

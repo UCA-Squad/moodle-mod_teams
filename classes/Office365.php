@@ -78,27 +78,47 @@ class Office365
      */
     public function generateToken()
     {
-        $guzzle = new \GuzzleHttp\Client();
         $url = 'https://login.microsoftonline.com/' . $this->tenantId . '/oauth2/token?api-version=1.0';
 
-        try {
-            $params = ['form_params' => [
+        if (WS_SERVER) {
+            // Classic curl call if we call it throw web service (e.g Moodle mobile app calls).
+            $curl = curl_init($url);
+            $params = [
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'resource' => 'https://graph.microsoft.com/',
+                'grant_type' => 'client_credentials',
+            ];
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            if (get_config('moodle', 'proxyhost')) {
+                // Use defined web proxy.
+                curl_setopt($curl, CURLOPT_PROXY, get_config('moodle', 'proxyhost'));
+            }
+            $result = curl_exec($curl);
+            return json_decode($result);
+        } else {
+            // Web calls, we choose to use Guzzle in these cases.
+            try {
+                $guzzle = new \GuzzleHttp\Client();
+                $params = ['form_params' => [
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
                     'resource' => 'https://graph.microsoft.com/',
                     'grant_type' => 'client_credentials',
                 ]
-            ];
-            if (get_config('moodle', 'proxyhost')) {
-                // Use defined web proxy.
-                $params['form_params']['proxy'] = get_config('moodle', 'proxyhost');
-            }
+                ];
+                if (get_config('moodle', 'proxyhost')) {
+                    // Use defined web proxy.
+                    $params['form_params']['proxy'] = get_config('moodle', 'proxyhost');
+                }
 
-            $token = json_decode($guzzle->post($url, $params)->getBody()->getContents());
-            return $token;
-        }
-        catch (Exception $exception) {
-            throw $exception;
+                $token = json_decode($guzzle->post($url, $params)->getBody()->getContents());
+                return $token;
+            } catch (Exception $exception) {
+                throw $exception;
+            }
         }
     }
 
@@ -128,7 +148,6 @@ class Office365
      */
     public function getUserId(string $email)
     {
-        global $CFG;
         $queryParams = ['$filter' => "userPrincipalName eq '$email' or mail eq '$email'"];
         $url = '/users?' . http_build_query($queryParams);
 
@@ -239,12 +258,34 @@ class Office365
      */
     public function readTeam($groupId)
     {
-        $url = "/groups/$groupId/team";
-        $graph = $this->getGraphApi();
+        if (WS_SERVER) {
+            // Classic curl call if we call it throw web service (e.g Moodle mobile app calls).
+            $url = "https://graph.microsoft.com/v1.0/groups/$groupId/team";
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$this->generateToken()->access_token]);
+            if (get_config('moodle', 'proxyhost')) {
+                // Use defined web proxy.
+                curl_setopt($curl, CURLOPT_PROXY, get_config('moodle', 'proxyhost'));
+            }
+            $result = json_decode(curl_exec($curl));
 
-        return $graph->createRequest("GET", $url)
-            ->setReturnType(\Microsoft\Graph\Model\Group::class)
-            ->execute();
+            if ($result->error) {
+                // We have an error => throw an exception to display its error message.
+                throw new Exception('Teams not found');
+            }
+
+            return json_decode($result);
+
+        } else {
+            // Web calls.
+            $url = "/groups/$groupId/team";
+            $graph = $this->getGraphApi();
+
+            return $graph->createRequest("GET", $url)
+                ->setReturnType(\Microsoft\Graph\Model\Group::class)
+                ->execute();
+        }
     }
 
     /**
@@ -319,15 +360,14 @@ class Office365
 
         try {
             $response = $this->addOwner($current, $group, false);
-            if ($response && $response->getStatus() == 204) { // ok
+            if ($response && $response->getStatus() == 204) {
+                // Ok.
                 if (get_config('mod_teams', 'team_model')) {
                     // If we use model team -> delete owners of this model team in the given team.
                     $this->deleteModelOwners($group, false, $current);
                 }
             }
-
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
@@ -351,7 +391,7 @@ class Office365
         }
         catch (Exception $e) {
             if (!$retry && $e->getCode() == 404) {
-                // If wa have 404 error, we retry the action just one time in order to not take too many exec time
+                // If we have 404 error, we retry the action just one time in order to not take too many exec time.
                 sleep(10);
                 return $this->addOwner($ownerId, $groupId, true);
             }
@@ -389,8 +429,7 @@ class Office365
             }
 
             return true;
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -445,9 +484,7 @@ class Office365
                 ->setReturnType(\Microsoft\Graph\Model\Event::class)
                 ->execute();
             return $response;
-        }
-        catch (Exception $exception)
-        {
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
@@ -462,7 +499,6 @@ class Office365
      */
     public function updateBroadcastEvent($event_id, $datas, $user)
     {
-        global $USER;
         $event = new \Microsoft\Graph\Model\Event();
         $event->setSubject(str_replace(get_string('meeting_prefix', 'mod_teams'), '', $datas->name));
         $start = ($datas->opendate > 0) ? new DateTime(date('Y-m-d\TH:i:s.0000000', $datas->opendate)) : new DateTime('now');
@@ -488,9 +524,7 @@ class Office365
                 ->execute();
 
             return $response;
-        }
-        catch (Exception $exception)
-        {
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
@@ -528,9 +562,7 @@ class Office365
                 ->setReturnType(\Microsoft\Graph\Model\OnlineMeeting::class)
                 ->execute();
             return $response;
-        }
-        catch (Exception $exception)
-        {
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
@@ -546,13 +578,10 @@ class Office365
     {
         global $DB;
         if (!$teams->reuse_meeting) {
-            $user = $DB->get_record('user', array('id' => $teams->creator_id));
+            $user = $DB->get_record('user', ['id' => $teams->creator_id]);
             return $this->getBroadcastEvent($user->email, $teams->resource_teams_id);
         }
         //@todo: check if functionnal.
-//        else {
-//            return $this->getOnlineMeeting($teams->resource_teams_id);
-//        }
 
         return null;
     }
@@ -565,13 +594,11 @@ class Office365
      */
     public function getOnlineMeeting(string $meetingId)
     {
-        $queryParams = array(
-            '$filter' => "VideoTeleconferenceId eq '$meetingId'"
-        );
+        $queryParams = ['$filter' => "VideoTeleconferenceId eq '$meetingId'"];
 
         $url = '/communications/onlineMeetings/?' . http_build_query($queryParams);
-//        $url = "/communications/onlineMeetings/?\$filter=VideoTeleconferenceId eq '$meetingId'";
         $graph = $this->getGraphApi();
+
         return $graph->createRequest("GET", $url)
             ->setReturnType(\Microsoft\Graph\Model\OnlineMeeting::class)
             ->execute();
@@ -586,10 +613,31 @@ class Office365
      */
     public function getBroadcastEvent($user, $event_id)
     {
-        $graph = $this->getGraphApi();
-        return $graph->createRequest("GET", "/users/$user/events/$event_id")
-            ->setReturnType(\Microsoft\Graph\Model\Event::class)
-            ->execute();
+        if (WS_SERVER) {
+            // Classic curl call if we call it throw web service (e.g Moodle mobile app calls).
+            $url = "https://graph.microsoft.com/v1.0/users/$user/events/$event_id";
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$this->generateToken()->access_token]);
+            if (get_config('moodle', 'proxyhost')) {
+                // Use defined web proxy.
+                curl_setopt($curl, CURLOPT_PROXY, get_config('moodle', 'proxyhost'));
+            }
+            $result = json_decode(curl_exec($curl));
+
+            if ($result->error) {
+                // We have an error => throw an exception to display its error message.
+                throw new Exception('Online meeting not found');
+            }
+
+            return json_decode($result);
+        } else {
+            // Web calls.
+            $graph = $this->getGraphApi();
+            return $graph->createRequest("GET", "/users/$user/events/$event_id")
+                ->setReturnType(\Microsoft\Graph\Model\Event::class)
+                ->execute();
+        }
     }
 
     /**

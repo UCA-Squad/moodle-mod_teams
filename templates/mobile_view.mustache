@@ -1,0 +1,87 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_ucateams/mobile_view
+
+    Render the main view for the mobile app.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * cmid - [int] Course module identifier.
+    * teams - [object]
+    * teams.id - [int] Subcourse instance ID.
+    * teams.intro - [string] Formatted activity description.
+    * hasprogress - [bool] Is the progress value set (not null).
+    * progress - [float] Percentual value of the progress in the referenced course.
+    * warning - [string] Warning to be displayed to the user.
+
+    Example context (json): @todo change example
+    {
+        "cmid": 42,
+        "teams": {
+            "id": 24,
+            "intro": "<h3>Teams UCA activity description</h3>"
+        },
+        "hasprogress": true,
+        "progress": 100,
+        "warning": ""
+    }
+}}
+
+{{=<% %>=}}
+<div>
+    <core-course-module-description
+            description="<% teams.intro %>"
+            component="mod_teams"
+            componentId="<% cmid %>">
+    </core-course-module-description>
+
+    <ion-list>
+
+        <%# details %>
+            <ion-item>
+                <p>
+                    <ion-icon class="icon fa fa-info-circle" aria-hidden="true" role="info" name="fa-info-circle" style="padding-right: .3em;"></ion-icon>
+                    <% details %>
+                </p>
+            </ion-item>
+        <%/ details %>
+
+        <%^ gotoresource %>
+            <ion-item>
+                <button ion-button block core-link capture="true" href="<% defaulturl %>">
+                    <ion-icon name="link" role="img" start class="icon icon-md ion-md-link" aria-label="link" style="padding-right: .3em;"></ion-icon>
+                    {{ 'plugin.mod_teams.title_courseurl' | translate }}
+                </button>
+            </ion-item>
+        <%/ gotoresource %>
+        <%# gotoresource %>
+            <ion-item>
+                <button ion-button block core-link capture="true" href="<% teams.externalurl %>">
+                    <ion-icon name="link" role="img" start class="icon icon-md ion-md-link" aria-label="link" style="padding-right: .3em;"></ion-icon>
+                    {{ 'plugin.mod_teams.gotoresource' | translate }}
+                </button>
+            </ion-item>
+        <%/ gotoresource %>
+
+    </ion-list>
+</div>
