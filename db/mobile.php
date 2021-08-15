@@ -40,7 +40,7 @@ $addons = [
         'lang' => [
             ['pluginname', 'mod_teams'],
             ['gotoresource', 'mod_teams'],
-            ['title_courseurl', 'theme_uca'],
+            ['title_courseurl', 'mod_teams'],
         ],
     ],
 ];

@@ -119,3 +119,4 @@ $string['meeting_default_duration'] = 'Durée par défaut de la réunion si une 
 $string['meeting_default_duration_help'] = 'Permet de renseigner une durée par défaut pour les réunions crées via le module si une date de fin n\'est pas renseignée. La date de fin par défaut sera calculée par rapport à la date de début rénseignée et en ajoutant cette durée.';
 
 $string['gotoresource'] = 'Accéder à la ressource Teams';
+$string['title_courseurl'] = 'Revenir au cours';

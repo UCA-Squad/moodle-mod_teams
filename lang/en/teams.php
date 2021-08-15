@@ -118,3 +118,4 @@ $string['meeting_default_duration'] = 'Default duration for the meetings if a cl
 $string['meeting_default_duration_help'] = 'Default duration  for the meetings created with Teams activit if a close is not given. This closedate will be deducted from the startdate and this selected duration.';
 
 $string['gotoresource'] = 'Go to the Teams resource';
+$string['title_courseurl'] = 'Return to the course';
