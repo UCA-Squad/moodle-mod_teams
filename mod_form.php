@@ -45,8 +45,7 @@ class mod_teams_mod_form extends moodleform_mod
         $office = get_office();
         try {
             $userId = $office->getUserId($USER->email);
-        }
-        catch (Throwable $th) {
+        } catch (Throwable $th) {
             $error = $th->getMessage();
             $userId = null;
         }
@@ -61,7 +60,7 @@ class mod_teams_mod_form extends moodleform_mod
             $teamexists = true;
             $default_owners = "managers";
             if (!empty($this->current->id)) {
-                // Resource mod edition
+                // Resource mod edition.
                 if ($this->current->type != "meeting") {
                     try {
                         $team = $office->readTeam($this->current->resource_teams_id);
@@ -88,8 +87,7 @@ class mod_teams_mod_form extends moodleform_mod
                     try {
                         $office->getMeetingObject($this->current);
                         $teamexists = true;
-                    }
-                    catch (Exception $e) {
+                    } catch (Exception $e) {
                         $teamexists = false;
                     }
                 }
@@ -244,8 +242,7 @@ class mod_teams_mod_form extends moodleform_mod
                 $mform->addElement('html', '<div class="alert alert-danger">' . get_string('no_owner', 'teams', $error) . '</div>');
                 $mform->addElement('cancel', '', get_string('back', 'teams'));
             }
-        }
-        else {
+        } else {
             // The current user does not have an Azure AD account -> impossible to add a teams instance.
             $this->standard_hidden_coursemodule_elements();
             $identifer = ($error) ? 'teamserror' : 'noaccount';

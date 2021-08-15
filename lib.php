@@ -82,7 +82,7 @@ function teams_add_instance($data, $mform) {
     require_once($CFG->dirroot.'/mod/url/locallib.php');
 
     if (!empty($data->name)) {
-        // Fixing default display options
+        // Fixing default display options.
         $displayoptions = array();
         $data->display = RESOURCELIB_DISPLAY_NEW;
         $data->displayoptions = serialize($displayoptions);
@@ -98,8 +98,7 @@ function teams_add_instance($data, $mform) {
         try {
             $office = get_office();
             $userId = $office->getUserId($USER->email);
-        }
-        catch (Throwable $th) {
+        } catch (Throwable $th) {
             new Exception(get_string('notfound', 'mod_teams'));
         }
 
@@ -171,7 +170,7 @@ function teams_add_instance($data, $mform) {
                     $html .= html_writer::link($meeting->getJoinWebUrl() , $meeting->getJoinWebUrl(), array('target' => '_blank'));
                     $html .= html_writer::end_tag('div') . PHP_EOL;
 
-                    // Creation notification
+                    // Creation notification.
                     $message = new \core\message\message();
                     $message->courseid = $COURSE->id;
                     $message->component = 'mod_teams';
@@ -209,7 +208,7 @@ function teams_update_instance($data, $mform) {
     require_once($CFG->dirroot.'/mod/url/locallib.php');
 
     if (!empty($data->name)) {
-        // Fixing default display options
+        // Fixing default display options.
         $displayoptions = array();
         $data->display = RESOURCELIB_DISPLAY_NEW;
         $data->displayoptions = serialize($displayoptions);
@@ -230,7 +229,7 @@ function teams_update_instance($data, $mform) {
         }
 
         if ($data->type == "team") {
-            // Team update
+            // Team update.
             $population = teams_get_population($data);
             $selection = teams_get_selection($data);
             $data->selection = ($selection) ? json_encode($selection) : null;
@@ -257,7 +256,7 @@ function teams_update_instance($data, $mform) {
         $data->creator_id = (isset($data->creator_id)) ? $data->creator_id : $USER->id;
 
         $data->id = $data->instance;
-        teams_set_events($data); // Create meeting events if defined
+        teams_set_events($data); // Create meeting events if defined.
 
         $DB->update_record('teams', $data);
 
@@ -279,21 +278,10 @@ function teams_delete_instance($id) {
         return false;
     }
 
-//    if ($team->type == "meeting") {
-//        try {
-//            $office = get_office();
-//            $userId = $office->getUserId($USER->email);
-//        } catch (Throwable $th) {
-//            new Exception(get_string('notunique', 'mod_teams'));
-//        }
-//        // Delete the meeting in Teams > api call (fails for now).
-//        $office->deleteBroadcastEvent($team->resource_teams_id);
-//    }
-
     $cm = get_coursemodule_from_instance('teams', $id);
     \core_completion\api::update_completion_date_event($cm->id, 'teams', $id, null);
 
-    // note: all context files are deleted automatically
+    // Note: all context files are deleted automatically.
     $DB->delete_records('teams', array('id' => $team->id));
 
     return true;
@@ -327,7 +315,6 @@ function teams_get_coursemodule_info($coursemodule) {
         $height = empty($options['popupheight']) ? 450 : $options['popupheight'];
         $wh = "width=$width,height=$height,toolbar=no,location=no,menubar=no,copyhistory=no,status=no,directories=no,scrollbars=yes,resizable=yes";
         $info->onclick = "window.open('$fullurl', '', '$wh'); return false;";
-
     } else if ($display == RESOURCELIB_DISPLAY_NEW) {
         $fullurl = "$CFG->wwwroot/mod/teams/view.php?id=$coursemodule->id&amp;redirect=1";
         $info->onclick = "window.open('$fullurl'); return false;";
@@ -435,8 +422,7 @@ function teams_get_owners($course, $team = null)
         if ($team->other_owners) {
             $managers = array_merge(array_values($managers), json_decode($team->other_owners));
         }
-    }
-    else {
+    } else {
         $manager = new course_enrolment_manager($PAGE, $course, 0, 1, '', 0, -1);
         $results = $manager->get_users_for_display($manager, 'lastname', 'ASC', 0, 100);
 
@@ -558,10 +544,8 @@ function teams_print_workaround($team, $cm, $course) {
         $height = empty($options['popupheight']) ? 450 : $options['popupheight'];
         $wh = "width=$width,height=$height,toolbar=no,location=no,menubar=no,copyhistory=no,status=no,directories=no,scrollbars=yes,resizable=yes";
         $extra = "onclick=\"window.open('$jsfullurl', '', '$wh'); return false;\"";
-
     } else if ($display == RESOURCELIB_DISPLAY_NEW) {
         $extra = "onclick=\"this.target='_blank';\"";
-
     } else {
         $extra = '';
     }
@@ -576,7 +560,7 @@ function teams_print_workaround($team, $cm, $course) {
     echo html_writer::tag('img', '', array('src' => $OUTPUT->image_url('e/insert_edit_link', 'core'), 'style' => 'margin-right: 5px;'));
     echo get_string('copy_link', 'mod_teams'). '</button></div>';
 
-    // Script to copy the link
+    // Script to copy the link.
     echo '<script>
             var btn = document.getElementById(\'teams_url_copybtn\');
             btn.addEventListener(\'click\', function(event) {
@@ -607,8 +591,7 @@ function teams_print_details_dates($team, $format = 'html')
     if ($team->type == 'meeting') {
         if ($team->opendate != 0) {
             $details = ($team->closedate != 0) ? sprintf(get_string('dates_between', 'mod_teams'), date('d/m/Y H:i', $team->opendate), date('d/m/Y H:i', $team->closedate))  : sprintf(get_string('dates_from', 'mod_teams'), date('d/m/Y H:i', $team->opendate));
-        }
-        else if ($team->closedate != 0) {
+        } else if ($team->closedate != 0) {
             $details = sprintf(get_string('dates_until', 'mod_teams'), date('d/m/Y H:i', $team->closedate));
         }
         if ($details) {

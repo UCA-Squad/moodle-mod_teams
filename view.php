@@ -28,11 +28,11 @@ require_once("$CFG->dirroot/mod/url/locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->dirroot.'/mod/teams/vendor/autoload.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
-$u = optional_param('u', 0, PARAM_INT); // URL instance id
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$u = optional_param('u', 0, PARAM_INT); // URL instance id.
 $redirect = optional_param('redirect', 0, PARAM_BOOL);
 
-if ($u) {  // Two ways to specify the module
+if ($u) {  // Two ways to specify the module.
     $resource = $DB->get_record('teams', array('id' => $u), '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('teams', $resource->id, $resource->course, false, MUST_EXIST);
 } else {
@@ -96,11 +96,11 @@ $event->add_record_snapshot('course', $course);
 $event->add_record_snapshot('teams', $resource);
 $event->trigger();
 
-// Update 'viewed' state if required by completion system
+// Update 'viewed' state if required by completion system.
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
-// Make sure URL exists before generating output - some older sites may contain empty urls
+// Make sure URL exists before generating output - some older sites may contain empty urls.
 // Do not use PARAM_URL here, it is too strict and does not support general URIs!
 $exturl = trim($resource->externalurl);
 if (empty($exturl) or $exturl === 'http://') {
@@ -114,8 +114,8 @@ unset($exturl);
 
 $displaytype = url_get_final_display_type($resource);
 if ($displaytype == RESOURCELIB_DISPLAY_OPEN) {
-    // For 'open' links, we always redirect to the content - except if the user
-    // just chose 'save and display' from the form then that would be confusing
+    // For 'open' links, we always redirect to the content - except if the user.
+    // just chose 'save and display' from the form then that would be confusing.
     if (!isset($_SERVER['HTTP_REFERER']) || strpos($_SERVER['HTTP_REFERER'], 'modedit.php') === false) {
         $redirect = true;
     }
@@ -123,7 +123,7 @@ if ($displaytype == RESOURCELIB_DISPLAY_OPEN) {
 
 if ($redirect) {
     // coming from course page or url index page,
-    // the redirection is needed for completion tracking and logging
+    // the redirection is needed for completion tracking and logging.
     $fullurl = str_replace('&amp;', '&', url_get_full_url($resource, $cm, $course));
 
     if (!course_get_format($course)->has_view_page()) {
