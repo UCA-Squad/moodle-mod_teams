@@ -3,6 +3,10 @@ information provided here is intended especially for developers.
 
 === 2021030800 version ===
 
+ * Add first Moodle mobile app compatibility.
+
+=== 2021030800 version ===
+
  * Possibility to enrol only students on the created team.
  * Possibility to choose a specific population to be team owners.
  * Change the online meeting creation form to use two different types of meeting: permanent and one shot online meeting.

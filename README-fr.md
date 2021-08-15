@@ -9,7 +9,7 @@ Les objectifs de ce module étaient de pouvoir créer une resource Teams à part
 Pré-requis
 ------------
 - Moodle en version 3.7 ou plus récente.<br/>
--> Tests effectués sur des versions 3.7 à 3.10.1 (des tests sur des versions antérieures n'ont pas encore été effectués).<br/>
+-> Tests effectués sur des versions 3.7 à 3.11.0 (des tests sur des versions antérieures n'ont pas encore été effectués).<br/>
 - Composer installé sur votre machine/serveur.
 - Avoir créé une application sur l'Active Directory Azure (ou avoir les droits nécessaires pour en créer une).
 
@@ -27,7 +27,7 @@ Installation
 > git clone https://github.com/UCA-Squad/moodle-mod_teams.git mod/teams
 
 - Téléchargement:
-> Télécharger le zip depuis https://github.com/UCA-Squad/moodle-mod_teams/archive/main.zip, dézipper l'archive dans le dossier mod/ et renommer le si besoin en "teams" ou installez-le depuis la page d'installation des plugins si vous possédez les droits suffisants.
+> Télécharger le zip depuis <a href="https://github.com/UCA-Squad/moodle-mod_teams/archive/refs/heads/main.zip" target="_blank">https://github.com/UCA-Squad/moodle-mod_teams/archive/refs/heads/main.zip </a>, dézipper l'archive dans le dossier mod/ et renommer le si besoin en "teams" ou installez-le depuis la page d'installation des plugins si vous possédez les droits suffisants.
 
 2. Récupérer les librairies Microsoft Graph (https://packagist.org/packages/microsoft/microsoft-graph) utilisées dans le plugin. Pour cela placez-vous dans le dossier teams/ nouvellement créé et lancez la commande ```composer install```.<br/>
 Vous pouvez également récupérer les versions les plus récentes de ces librairies en utilisant ```composer update```.

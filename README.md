@@ -9,7 +9,7 @@ Goals of this plugin were to create a Teams resource from a Moodle course, to ac
 Requirements
 ------------
 - Moodle 3.7 or later.<br/>
--> Tests on Moodle 3.7 to 3.10.1 (tests on older moodle versions not made yet).<br/>
+-> Tests on Moodle 3.7 to 3.11.0 (tests on older moodle versions not made yet).<br/>
 - Composer on your computer/server
 - Have an Azure Active Directory web application registred (or rights to create one).
 
@@ -26,7 +26,7 @@ Installation
 > git clone https://github.com/UCA-Squad/moodle-mod_teams.git mod/teams
 
 - Download way:
-> Download the zip from https://github.com/UCA-Squad/moodle-mod_teams/archive/main.zip, unzip it in mod/ folder and rename it "teams" if necessary or install it from the "Install plugin" page if you have the right permissions.
+> Download the zip from <a href="https://github.com/UCA-Squad/moodle-mod_teams/archive/refs/heads/main.zip" target="_blank">https://github.com/UCA-Squad/moodle-mod_teams/archive/refs/heads/main.zip </a>, unzip it in mod/ folder and rename it "teams" if necessary or install it from the "Install plugin" page if you have the right permissions.
  
 2. Get Microsoft Graph libs (https://packagist.org/packages/microsoft/microsoft-graph) used in the plugin. Go to the new teams/ folder and use the command ```composer install```.<br/>
 You can also get the latest libs versions by using ```composer update```. 
