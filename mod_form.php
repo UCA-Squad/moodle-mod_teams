@@ -42,6 +42,19 @@ class mod_teams_mod_form extends moodleform_mod
         $mform = $this->_form;
         $error = null;
 
+        $resources = [
+            (has_capability('mod/teams:addteam', $this->context, $USER)) ? 'team' : '',
+            (has_capability('mod/teams:addmeeting', $this->context, $USER)) ? 'meeting' : '',
+        ];
+        $resources = array_values(array_filter($resources));
+
+        if (!$resources) {
+            // The user has not capability to create any of the Teams resources (team or meeting).
+            $this->standard_hidden_coursemodule_elements();
+            print_error('nopermissions', 'error', '', get_string('resourceerror', 'mod_teams'));
+            return;
+        }
+
         $office = get_office();
         try {
             $userId = $office->getUserId($USER->email);
@@ -55,11 +68,20 @@ class mod_teams_mod_form extends moodleform_mod
         if ($has_account) {
             // Current user had a correct account.
             $edit_ok = true;
-            $default_type = ($this->current->id) ? $this->current->type : "team";
+            $default_type = ($this->current->id) ? $this->current->type : $resources[0];
             $default_reuse = ($this->current->id) ? $this->current->reuse_meeting : 1;
             $teamexists = true;
             $default_owners = "managers";
+
             if (!empty($this->current->id)) {
+                // Check edit capability.
+                if (!has_capability('mod/teams:add' . $this->current->type, $this->context, $USER)) {
+                    // The user has not capability to edit this Teams resource.
+                    $this->standard_hidden_coursemodule_elements();
+                    print_error('nopermissions', 'error', '', get_string('teams:add' . $this->current->type, 'mod_teams'));
+                    return;
+                }
+
                 // Resource mod edition.
                 if ($this->current->type != "meeting") {
                     try {
@@ -101,13 +123,13 @@ class mod_teams_mod_form extends moodleform_mod
                 if ($teamexists) {
                     $mform->addElement('header', 'general', get_string('general'));
 
-                    $radioarray = array();
-                    $radioarray[] = $mform->createElement('radio', 'type', '',
-                        "<div>" . get_string('team', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('team', 'mod_teams'), 'src' => $OUTPUT->image_url('i/cohort', 'core'), 'style' => 'height: 96px;margin-right: 50px;')) . "</div>",
-                        'team');
-                    $radioarray[] = $mform->createElement('radio', 'type', '',
-                        "<div>" . get_string('meeting', 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string('meeting', 'mod_teams'), 'src' => $OUTPUT->image_url('i/calendar', 'core'), 'style' => 'height: 96px;')) . "</div>",
-                        'meeting');
+                    $radioarray = [];
+                    foreach ($resources as $resource) {
+                        $icon = ($resource == "meeting") ? 'i/calendar' : 'i/cohort';
+                        $radioarray[] = $mform->createElement('radio', 'type', '',
+                            "<div>" . get_string($resource, 'mod_teams') . '<br/>' . html_writer::tag('img', '', array('alt' => get_string($resource, 'mod_teams'), 'src' => $OUTPUT->image_url($icon, 'core'), 'style' => 'height: 96px;margin-right: 50px;')) . "</div>",
+                            $resource);
+                    }
                     $mform->addGroup($radioarray, 'type', get_string('type', 'mod_teams'), array(' '), false);
                     $mform->addHelpButton('type', 'type', 'mod_teams');
                     $mform->setDefault('type', $default_type);

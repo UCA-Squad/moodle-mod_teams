@@ -29,7 +29,10 @@ $string['modulenameplural'] = 'Teams ';
 $string['pluginname'] = 'Teams';
 $string['pluginadministration'] = 'Ressource Teams';
 $string['teams:addinstance'] = 'Ajouter une ressource Teams';
+$string['teams:addmeeting'] = 'Créer/modifier une réunion Teams';
+$string['teams:addteam'] = 'Créer/modifier une équipe Teams';
 $string['teams:view'] = 'Visualiser une ressource Teams';
+$string['resourceerror'] = 'Créer/modifier une réunion Teams ou créer/modifier une équipe Teams';
 $string['privacy:metadata'] = 'Le module Ressource Teams ne stocke aucune donnée personnelle.';
 $string['use_prefix'] = 'Utiliser un préfixe dans le nom de la ressource';
 $string['use_prefix_help'] = 'Si cette case est cochée un préfixe du type "[TYPE]" sera ajouté au nom de la ressource pour identifier le type de la ressource (équipe, réunion...).';
@@ -48,7 +51,8 @@ $string['back'] = 'Revenir au cours';
 $string['type'] = 'Type de ressource Teams à créer';
 $string['type_help'] = 'Type de ressource Teams à créer: 
                                     <ul><li>Equipe Teams: vous permet de créer une équipe dans Teams que vous pourrez gérer à votre guise (ajouts de canaux...) et avec les membres du cours que vous aurez sélectionné.</li>
-                                    <li>Réunion Teams (Classe virtuelle): vous permet de créer directement une réunion Teams (ou classe virtuelle) que pourront rejoindre les utilisateurs cliquant sur le lien de l\'activité moodle.</li></ul>';
+                                    <li>Réunion Teams (Classe virtuelle): vous permet de créer directement une réunion Teams (ou classe virtuelle) que pourront rejoindre les utilisateurs cliquant sur le lien de l\'activité moodle.</li></ul><br/>
+                                    Seules les ressources pour lesquelles vous avez la capacité de création seront listées ici.';
 $string['team'] = 'Equipe Teams<br/>';
 $string['meeting'] = 'Réunion Teams<br/> Classe virtuelle';
 $string['team_prefix'] = '[EQUIPE] ';
