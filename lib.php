@@ -438,7 +438,7 @@ function teams_get_owners($course, $team = null)
             }
         }
 
-        if ($team) {
+        if ($team && $managers) {
             if (!in_array(core_user::get_user($team->creator_id, 'email')->email, $managers)) {
                 $managers[] = core_user::get_user($team->creator_id, 'email')->email;
             }
@@ -457,7 +457,7 @@ function teams_get_owners($course, $team = null)
  */
 function teams_is_owner($team, $user)
 {
-    return in_array($user->email, teams_get_owners(get_course($team->course), $team));
+    return (teams_get_owners(get_course($team->course), $team) && in_array($user->email, teams_get_owners(get_course($team->course), $team)));
 }
 
 /**
