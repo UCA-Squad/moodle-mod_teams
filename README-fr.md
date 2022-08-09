@@ -10,6 +10,7 @@ Pré-requis
 ------------
 - Moodle en version 3.7 ou plus récente.<br/>
 -> Tests effectués sur des versions 3.7 à 3.11.0 (des tests sur des versions antérieures n'ont pas encore été effectués).<br/>
+- Php 7.2.5 ou plus récent.<br/>
 - Composer installé sur votre machine/serveur.
 - Avoir créé une application sur l'Active Directory Azure (ou avoir les droits nécessaires pour en créer une).
 

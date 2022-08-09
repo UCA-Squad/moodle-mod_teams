@@ -10,6 +10,7 @@ Requirements
 ------------
 - Moodle 3.7 or later.<br/>
 -> Tests on Moodle 3.7 to 3.11.0 (tests on older moodle versions not made yet).<br/>
+- Php 7.2.5 or later.<br/>
 - Composer on your computer/server
 - Have an Azure Active Directory web application registred (or rights to create one).
 
