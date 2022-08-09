@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $addons = [
-    'mod_ucateams' => [
+    'mod_teams' => [
         'handlers' => [
-            'courseucateams' => [
+            'courseteams' => [
                 'displaydata' => [
                     'icon' => $CFG->wwwroot . '/mod/teams/pix/icon.png',
                     'class' => '',

@@ -108,7 +108,7 @@ Exemples json:
 - Envoi possible d'une notification à la création de la réunion avec le lien direct vers cette réunion.
 
 <p>Note: il ne sera pas possible de restaurer une activité Teams. Si celle-ci est supprimée elle ne se retrouvera pas dans la corbeille du cours.<br/>
-Dans le cadre d'une édition et dans un souci , il ne sera également pas possible de changer le type de ressource: de modifier une équipe en réunion et inversement.</p>
+Dans le cadre d'une édition et dans un souci de cohérence des paramètres, il ne sera également pas possible de changer le type de ressource: de modifier une équipe en réunion et inversement.</p>
 
 [EQUIPE] Synchronisation des membres
 -----
