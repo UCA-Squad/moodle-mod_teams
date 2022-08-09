@@ -88,7 +88,7 @@ $string['dates_until'] = 'jusqu\'au %s';
 $string['error_groups'] = 'Veuillez choisir au moins un groupe ou bien changez la valeur du type de population.';
 $string['error_users'] = 'Veuillez choisir au moins un utilisateur ou bien changez la valeur du type de population.';
 $string['error_dates'] = 'La date de fin doit être postérieure que la date d\'ouverture.';
-$string['teams:error_dates_past'] = 'La période définie ne pas correspondre à une période déjà passée.';
+$string['error_dates_past'] = 'La période définie ne pas correspondre à une période déjà passée.';
 $string['no_owner'] = '<p>Vous n\'ếtes pas propriétaire de cette team, vous ne pouvez donc pas éditer les propriétés de celle-ci.</p>
                                 <p>Veuillez contater le(s) propriétaire(s) de la team pour qu\'il vous octroie ces droits d\'administration.</p>';
 $string['teamnotfound'] = 'L\'accès à cette équipe est impossible. Un problème est peut-être survenu sur le serveur Microsoft, auquel cas retentez de vous connecter un peu plus tard. Il est également possible que cette équipe ait été supprimée par un des propriétaires.';
